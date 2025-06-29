@@ -5,11 +5,10 @@ from django.utils.translation import gettext_lazy as _
 
 class UserProfile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    username = models.CharField('Minecraft Username', max_length=64)
     bio = models.CharField('Bio', max_length=512, default='')
     signing = models.CharField('Signing', max_length=64, default='')
     
-    pfp = models.ImageField('Profile picture', upload_to='users/pfps/')
+    mcuuid = models.UUIDField('Minecraft UUID')
     
     def __str__(self):
         return f'<{self.username} Profile>'
@@ -72,9 +71,17 @@ class Friend(models.Model):
 
 
 class RegistrationApplication(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    """Registration Application model
+
+    Args:
+        models (ForeignKey): User instance
+        models (CharField): The application text
+        models (SmallIntegerField): The application status
+
+    """
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='application')
     text = models.CharField(_("Text"), max_length=256)
-    type = models.SmallIntegerField('Application status', default=0) # TODO: implement via models.TextChoices
+    status = models.SmallIntegerField('Application status', default=0) # TODO: implement via models.TextChoices
     # 0: not reviewed, 1: approved, 2: denied
 
     class Meta:
