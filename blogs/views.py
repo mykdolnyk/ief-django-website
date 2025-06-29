@@ -10,7 +10,7 @@ from django.db.models import Count
 from blogs.forms import BlogCommentCreationForm, BlogEditForm
 from users.helpers import notifications
 from users.models import ProfileMedia, UserProfile
-from .models import Blog, BlogComment, Section
+from .models import Blog, BlogComment, Section, AdminMessage
 from users.helpers import awards
 
 from django.views.generic.list import ListView
@@ -41,16 +41,16 @@ def index_page(request: HttpRequest):
     
     blog_list = Blog.objects.filter(pk__in=random_blog_ids)
     
+    admin_message = AdminMessage.objects.order_by('is_pinned', 'created_at').last()
     
     context = {
         'top_players': top_players,
         'sight': sight,
         'blog_list': blog_list,
-        'admin_message': 'hi im a blgolblogfdg i am a good bou'
+        'admin_message': admin_message
         }
     
     return render(request, 'blogs/index_page.html', context=context)
-
 
 def blog_list(request: HttpRequest):
     context = {

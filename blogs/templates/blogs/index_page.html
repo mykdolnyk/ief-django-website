@@ -2,6 +2,11 @@
 
 {% block title %}Index Page{% endblock title %}
 
+{% block connect_css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/43.3.1/ckeditor5.css" />
+{% endblock connect_css %}
+
 {% block main_class %}main-flex{% endblock main_class %}
 
 {% block content %}
@@ -81,9 +86,9 @@
                 </div>
             </div>
         {% endwith %}
-        <div class="background message">
+        <div class="background ck-content">
             <h3>A Message from Above</h3>
-            <p>{{admin_message}}</p>
+            <div>{{admin_message.text|safe}}</div>
         </div>
     </div>
 </div>

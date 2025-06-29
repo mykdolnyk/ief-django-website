@@ -1,38 +1,6 @@
 /* Fonts import */
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
-
-:root {
-    /* Background colors */
-    --bg-color: #181517;
-    --div-bg-color: #241929;
-    --div-secondary-bg-color: #1e1522;
-
-    /* Font Colors */
-    --font-color: #D5D4D2;
-    --font-color-hover: #f7f7f7;
-    --info-font-color: #a5a5a5;
-
-    /* Anchor/Link colors */
-    --link-font-color: #a21ae1;
-    --link-font-color-hover: rgb(200, 82, 255);
-
-    /* Other Colors */
-    --header-bg-color: #601284;
-
-    /* Buttons */
-    --button-bg-color: #4d0a6b;
-    --button-bg-hover-color: #6b1096;
-    --button-border-color: #2b0330;
-    --button-outline-color: #600b60;
-
-    /* Input Fields */
-    --input-bg-color: #2f1a36;
-    --input-border-color: #482357;
-    --input-placeholder-color: #8c6092;
-
-    --header-height: 75px;
-    --sidebar-width: 225px;
-}
+@import "base_variables.css";
 
 body {
     margin: 0px;

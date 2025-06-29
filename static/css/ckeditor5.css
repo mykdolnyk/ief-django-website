@@ -1,0 +1,19 @@
+@import "base_variables.css";
+
+/* CKEditor Stuff */
+
+.ck-editor__editable,
+.ck-editor__editable table,
+.ck-toolbar,
+.ck-sticky-panel__content,
+.ck-reset,
+.ck-toolbar button:not(.ck-color-grid button),
+.ck-editor__top {
+    background-color: var(--input-bg-color) !important;
+    border-color: var(--input-border-color) !important;
+}
+
+.ck-toolbar span,
+.ck-toolbar svg {
+    color: var(--font-color) !important;
+}

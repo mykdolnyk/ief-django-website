@@ -54,3 +54,11 @@ class Blog(models.Model):
     
 class BlogComment(AbstractComment):
     blog = models.ForeignKey(Blog, verbose_name='Blog', on_delete=models.SET_NULL, null=True)
+
+
+class AdminMessage(models.Model):
+    text = django_ckeditor_5.fields.CKEditor5Field(_("Text"), max_length=1028, config_name='extends')
+    is_pinned = models.BooleanField('Is the message pinned', default=False)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
