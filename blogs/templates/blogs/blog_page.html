@@ -13,7 +13,7 @@
     <div class="blog-info-box">
         <div>
             <h1>{{ blog.title }}</h1>
-            <p>by {% include 'parts/users/username_display.html' with user=blog.author %} on {{blog.created_at|date}}</p>
+            <p>by {% include 'parts/users/username_display.html' with user=blog.author %} on {% include 'parts/date_time.html' with date_time=blog.created_at %}</p>
             <div class="background like-button-box">
                 <span>❤️<b id="like-count">{{ blog.likes.count }}</b></span>
                 <button class="button" onclick='processLike(this)'>Like!</button>

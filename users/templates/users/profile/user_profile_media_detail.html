@@ -6,7 +6,7 @@
 {% block content %}
 
 <h1>{% if media.title %}{{media.title}}{% else %}An image{% endif %}</h1>
-<p>by {% include 'parts/users/username_display.html' with user=media.profile.user %} on {{media.created_at|date}}</p>
+<p>by {% include 'parts/users/username_display.html' with user=media.profile.user %} on {% include 'parts/date_time.html' with date_time=media.created_at %}</p>
 
 <div class="card image-card-detailed">
     <img src="{{ media.image.url }}" alt="">

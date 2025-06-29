@@ -16,7 +16,7 @@
                     {% else %}
                         <p class="author">Deleted User</p>
                     {% endif %}
-                    <p class="date">on {{ comment.created_at|date }}</p>
+                    <p class="date">on {% include 'parts/date_time.html' with date_time=comment.created_at %}</p>
                 </div>
                 <p>{{ comment.text }}</p>
             </div>

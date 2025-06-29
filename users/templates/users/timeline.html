@@ -9,7 +9,7 @@
     {% for blog in blogs %}
     <div class="background">
         <h2><a href="{% url 'blog_page' blog.section.slug blog.slug %}" class="white-link">{{ blog.title }}</a><span class="author"> by {% include 'parts/users/username_display.html' with user=blog.author %}</span></h2>
-        <p class="grey">on {{blog.created_at|date}}</p>
+        <p class="grey">on {% include 'parts/date_time.html' with date_time=blog.created_at %}</p>
         <p>{{ blog.text|striptags|safe|truncatewords:30|truncatechars:250 }} <a href="{% url 'blog_page' blog.section blog.slug %}">More...</a></p>
     </div>
     {% endfor %}

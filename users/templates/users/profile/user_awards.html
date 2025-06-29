@@ -11,7 +11,7 @@
                 <img src="{{ award.type.picture.url }}" alt="{{award.type.name}}">
                 <div class="card-info">
                     <h2>{{award.type.name}}</h2>
-                    <p class="date">received on {{award.created_at|date:'M j Y'}}</p>
+                    <p class="date">received on {% include 'parts/date_time.html' with date_time=award.created_at %}</p>
                 </div>     
                 <p>{{award.type.description}}</p>
             </div>
