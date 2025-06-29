@@ -10,17 +10,17 @@
     <meta http-equiv="Content-Language" content="en">
     <meta property="og:title" content="Igni et Ferro">
     <meta property="og:description" content="The Best Minecraft Server's Website.">
-    <meta property="og:image" content="{% static 'logo.svg' %}">
+    <meta property="og:image" content="{% static 'images/logo.svg' %}">
     {% block connect_css %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     {% endblock connect_css %}
     <title>{% block title %}{% endblock title %} - Igni et Ferro</title>
-    <link rel="icon" type="image/x-icon" href="{% static 'logo.svg' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'images/logo.svg' %}">
 </head>
 <body>
     <header>
         <a class="header-logo" href="{% url 'index_page' %}">   
-            <img src="{% static 'logo.svg' %}" alt="IeF Logo">
+            <img src="{% static 'images/logo.svg' %}" alt="IeF Logo">
             <p><span class='logo-igni'>Igni</span> <span class='logo-et'>et</span> <span class='logo-ferro'>Ferro</span></p>
         </a>
         <nav>
