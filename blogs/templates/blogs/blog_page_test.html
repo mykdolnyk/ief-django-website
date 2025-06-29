@@ -1,0 +1,92 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% comment %} <link rel="stylesheet" href="style.css"> {% endcomment %}
+
+    <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/43.3.1/ckeditor5.css" />
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <header>
+        <div class="header-logo">
+            <img src="..\static\logo.png" alt="IeF Logo">
+            <p><span class='logo-igni'>Igni</span> <span class='logo-et'>et</span> <span class='logo-ferro'>Ferro</span></p>
+        </div>
+        <nav>
+            <ul class="website-map">
+                <li><a href="#">Blogs</a></li>
+                <li><a href="#">News</a></li>
+                <li><a href="#">Sights</a></li>
+                <li><a href="#">Players</a></li>
+            </ul>
+
+            <ul class="login-card-info">
+                <li><a href="#">Hello, User!</a></li>
+                <li><a href="#">Notifications</a></li>
+                <li><a href="#">Log Out</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <nav class="sidebar">
+        <ul>
+            <li>
+            <a class="icon-link" href="#">
+                <img src="..\static\google_icons\account_circle.svg" alt="">
+                My Profile
+            </a>
+            </li>
+            <li>
+            <a class="icon-link" href="#">
+                <img src="..\static\google_icons\dashboard.svg" alt="">
+                My Timeline
+            </a>
+            </li>
+            <li>
+                <a class="icon-link" href="#">
+                <img src="..\static\google_icons\group.svg" alt="">
+                My Friends
+                </a>
+            </li>
+            <li>
+                <a class="icon-link" href="#">
+                <img src="..\static\google_icons\post_add.svg" alt="">
+                New Post
+                </a>
+            </li>
+        </ul>
+
+        <p class="support-notice">You can support the server <a href="#support">here</a></p>
+    </nav>
+
+    <main class="main-flex">
+        <div class="blog-info-box">
+            <div>
+                <h1>Blog Title</h1>
+                <p>by <a href="#">Username</a> on XX-XX-XXXX</p>
+                <div class="background like-button-box">
+                    <span>❤️<b>20</span>
+                    <a href="#" class="button">Like!</a>
+                    <a href="#" class="button">Subscribe!</a>
+                </div>
+            </div>
+
+            <a href="#" class="button">Edit</a>
+        </div>
+
+        <div class='background ck-content blog-text-box'>
+            {{ blog.text|safe }}     
+        </div>
+
+    </main>
+
+    <footer>
+    </footer>
+</body> 
+</html>

@@ -1,0 +1,15 @@
+<div class="card-container player-card-container {% if hidden %}display-none{% endif %}" {% if section_id %}id='{{section_id}}'{% endif %}>
+    {% for user_profile in user_profile_list %}
+        <div class="card player-card">
+            <img src="{{user_profile.pfp.url}}">
+            <p><a href="{% url 'user_page' user_profile.slug %}">{{ user_profile.user.username }}</a></p>
+            <div class="card-info">
+                <p><b>{{ user_profile.user.blogs.count }}</b> Posts</p>
+                <p><b>{{ user_profile.total_blog_likes }}</b> Likes</p>
+                <p><b>{{ user_profile.subscribers.count }}</b> Followers</p>
+            </div>
+        </div>
+    {% empty %}
+        <h2 class="grey nowrap" style="width: 100%;">None yet, come back here later!</h2>
+    {% endfor %}
+</div>

@@ -4,44 +4,53 @@
 
 
 {% block content %}
+<h1>Your Notifications</h1>
 
-<h1>Hey, {{ request.user.username }}!</h1>
-{% if not_seen_notifications %}
-    <h2>Here are your notifications:</h2>
-    <ul>
-        {% for notification in not_seen_notifications %}
-            <li>{{notification.text}}</li>
-        {% endfor %}
-    </ul>
-
-    <form action="" method="post">
-        <input type="submit" value="Seen">
-        <input type="hidden" name="action", value="update">
-        {% csrf_token %}
-    </form>
-
-{% else %}
-    <h2>There are no new notifictions for now, come back here later.</h2>
-{% endif %}
-
-{% if seen_notifications %}
-    <h2>Also, here are the some you have previously seen:</h2>
-    <form action="" method="post">
-
-        <ul>
-            {% for notification in seen_notifications %}
-                <li>
-                    {{notification.text}}
-                    <input type="checkbox" name="notification_{{notification.id}}">
-                </li>
+    {% if not_seen_notifications %}
+        <h2>Not Seen</h2>
+        <div class="card-container row-card-container">
+            {% for notification in not_seen_notifications %}
+                <div class="card notification-card">
+                    <div class="card-info">
+                        <p class="date">received on {{notification.created_at|date}}</p>
+                    </div>     
+                    <p>{{ notification.text|safe }}</p>
+                </div>
             {% endfor %}
-        </ul>
+        </div>
+        <form action="{% url 'user_notification_list' %}" method="post" class="invisible">
+            <input type="submit" value="Mark as Seen" class="button">
+            <input type="hidden" name="action", value="update">
+            {% csrf_token %}
+        </form>
+    {% else %}
+        <h2>There are no new notifications for now, come back here later.</h2>
+    {% endif %}
 
-        <input type="submit" value="Delete">
-        <input type="hidden" name="action", value="delete">
-        {% csrf_token %}
-    </form>
+        {% comment %} ------------ Seen Notifications ------------ {% endcomment %}
 
-{% endif %}
+    {% if seen_notifications %}
+        <h2>Seen</h2>
+        <div class="card-container row-card-container">
+
+            <form action="" method="post" class="card-container row-card-container invisible">
+
+                {% for notification in seen_notifications %}
+                    <div class="card notification-card">
+                        <div class="card-info">
+                            <p class="date">received on {{notification.created_at|date}}</p>
+                            <input type="checkbox" name="notification_{{notification.id}}">
+                        </div>     
+                        <p>{{ notification.text|safe }}</p>
+                    </div>
+                {% endfor %}
+        
+                <input type="submit" value="Delete" class="button" >
+                <input type="hidden" name="action", value="delete">
+                {% csrf_token %}
+            </form>
+        </div>
+
+    {% endif %}
 
 {% endblock content %}

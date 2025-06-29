@@ -2,17 +2,46 @@
 
 {% block title %}User Edit Page{% endblock title %}
 
-{% block content %}
-    <form action="" method="post">
-        {{ profile_form }}
-        {{ user_form }}
-        {% csrf_token %}
-        <input type="submit" value="Update">
-    </form>
+{% comment %} {% block main_class %}flex-center{% endblock main_class %} {% endcomment %}
 
-    <br>
-    <form action="{% url 'user_refresh_pfp' request.user.profile.slug %}" method="get">
-        <input type="submit" value="Refresh the profile picture">
-    </form>
+{% block content %}
+<h1>Edit Your Profile</h1>
+    <section class="user-edit-profile-section background">
+        <form action="{% url 'user_refresh_pfp' request.user.profile.slug %}" method="get" class="pfp-update-form">
+            <h2>Take a look!</h2>
+            <div>
+                <p>{{request.user.username}}</p>
+                <img src="{{request.user.profile.pfp.url}}" alt="Your Profile Picture" class="pfp-big">
+                <input type="submit" value="Refresh the Profile Picture" class="button">
+            </div>
+
+        </form>
+
+        <div class="vl"></div>
+
+        <form action="" method="post" class="user-edit-form">
+            <h2>Update Your Profile</h2>
+            <input type="hidden" name="updating" value="user">
+            {{ profile_form }}
+            {{ user_form }}
+            {% csrf_token %}
+            <input type="submit" value="Update" class="button">
+        </form>
+
+        <div class="vl"></div>
+
+        <form action="" method="post" class="user-edit-form">
+            <h2>Want to Change Your Password?</h2>
+            <input type="hidden" name="updating" value="password">
+            {{ password_change_form }}
+            {% csrf_token %}
+            <p class="form-note">Please note: you will be logged out from all your sessions.</p>
+            <input type="submit" value="Change the Password" class="button">
+        </form>
+    
+    </section>
+
+
+
 
 {% endblock content %}

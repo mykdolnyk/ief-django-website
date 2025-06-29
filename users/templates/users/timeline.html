@@ -1,0 +1,18 @@
+{% extends 'parts/base.html' %}
+
+{% block title %}My Timeline{% endblock title %}
+
+{% block content %}
+
+<h1>Here is your Timeline</h1>
+<div class="timeline-container">
+    {% for blog in blogs %}
+    <div class="background">
+        <h2><a href="{% url 'blog_page' blog.section.slug blog.slug %}" class="white-link">{{ blog.title }}</a><span class="author"> by {% include 'parts/users/username_display.html' with user=blog.author %}</span></h2>
+        <p class="grey">on {{blog.created_at|date}}</p>
+        <p>{{ blog.text|striptags|safe|truncatewords:30|truncatechars:250 }} <a href="{% url 'blog_page' blog.section blog.slug %}">More...</a></p>
+    </div>
+    {% endfor %}
+    <h2>That's it!</h2>
+</div>
+{% endblock content %}

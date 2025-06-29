@@ -1,0 +1,11 @@
+{% extends 'parts/email_base.html' %}
+{% block content %}
+<h1>Registration Application Submitted</h1>
+<p>Dear {{ user.username }},</p>
+<p>Thank you for submitting your application. We have received your application and it is currently under review.</p>
+<p>Once we make a decision, you will be informed if it was accepted or rejected.</p>
+<p>If you have any questions, please feel free to <a href="mailto:{{settings.EMAIL_HOST_USER}}">contact us</a>.</p>
+<br>
+<p>Best regards,</p>
+<p>Igni et Ferro Team</p>
+{% endblock content %}

@@ -2,15 +2,31 @@
 
 {% block title %}Delete your Media{% endblock title %}
 
+{% block main_class %}main-flex{% endblock main_class %}
 
 {% block content %}
+    <h1>Delete your Media</h1>
+    <form action="" method="post" class='bulk-delete-form' id="media-delete-form">
+        {% for media in media_list %}
+        <div class='background-inside'>
+            <label for="media_{{ media.id }}">
+            <img src="{{ media.image.url }}" alt="{{award.type.description}}" style="height:4cm;">
+            {{ media.title }}</label>
+            <input type="checkbox" id="media_{{ media.id }}" name="media_{{ media.id }}">
+        </div>
+        {% endfor %}
+        {% csrf_token %}
+    </form>
+    <input type="submit" value="Delete" class="button" form="media-delete-form">
 
-{% if request.user.profile.slug  %}
+{% endblock content %}
+
+{% comment %}  {% if request.user.profile.slug  %}
     <a href="{% url 'user_media_list' request.user.profile.slug %}">Media List</a>
     <a href="{% url 'user_media_upload' request.user.profile.slug %}">Upload a new one</a>
 {% endif %}
 
-<h1>Delete your media</h1>
+ <h1>Delete your media</h1>
 
 <form action="" method="post">
     <ul>
@@ -25,6 +41,4 @@
         <input type="submit" value="Delete">
     </ul>
 </form>
-
-
-{% endblock content %}
+ {% endcomment %}

@@ -1,0 +1,20 @@
+{% extends 'parts/base.html' %}
+
+{% block title %}About the Project{% endblock title %}
+
+{% block content %}
+
+<h1>About the Igni et Ferro website</h1>
+<div class="background">
+<p><b>Igni et Ferro</b> website - is my pet project developed with passion and love. Even though it might have some quirks or inconsistencies, I hope you will find it comfortable to use!</p>
+<p>If you want to support the project, I would ask you to contribute to the website by creating a few meaningful posts or engaging with any content on the platform.</p>
+<p>Thank you :) !!!</p>
+<p><i>fl.</i></p>
+</div>
+<h2>Legal</h2>
+<div class="background">
+    <p>
+        You can check out the Legal stuff <a href="{% url 'legal_page' %}">here</a>.
+    </p>
+</div>
+{% endblock content %}

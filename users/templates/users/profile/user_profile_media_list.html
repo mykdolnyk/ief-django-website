@@ -5,17 +5,16 @@
 
 {% block content %}
 
-{% if request.user.profile.slug  %}
-    <a href="{% url 'user_media_upload' request.user.profile.slug %}">Upload a new one</a>
-    <a href="{% url 'user_media_delete' request.user.profile.slug %}">Delete media</a>
-{% endif %}
+<div class='elements-inline'>
+    <h1><a href="{% url 'user_page' profile.slug %}">{{ profile.user.username }}</a> Images</h1>
+    {% if request.user == profile.user %}
+    <div class="elements-inline">
+        <a href="{% url 'user_media_delete' profile.slug %}" class="button">Hide Images</a>    
+        <a href="{% url 'user_media_upload' profile.slug %}" class="button">Upload a New</a>    
+    </div>
+    {% endif %}
+</div> 
 
-<h1>Pictures and other media</h1>
-<ul>
-    {% for media in media_list %}
-        <li><img src="{{ media.image.url }}" alt="{{award.type.description}}" style="height:8cm;"></li>
-        {{ media.title }}
-    {% endfor %}
-</ul>
+{% include 'parts/users/profile_media_container.html' %}
 
 {% endblock content %}

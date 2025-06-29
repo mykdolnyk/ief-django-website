@@ -1,19 +1,22 @@
-{% extends "parts/base.html" %}
+{% extends "parts/base_not_logged_in.html" %}
 
-{% block title %}Log in{% endblock title %}
+{% block title %}Log In{% endblock title %}
+
+{% block main_class %}flex-center{% endblock main_class %}
 
 {% block content %}
-    <h1>Log in page</h1>
-    <hr>
-        <form method='post'>
-            {% csrf_token %}
-            {{ form }}
-            <input type=submit>
-        </form>
-    <hr>
-        is authenticated: {{ user.is_authenticated }}, {{ user.username }}
-        <br>
-        {{ appl }}
-    <hr>
-    {{ form.errors }}
+    <h1>Log in to IeF</h1>
+    <form class="login-form" method="post">
+        {% csrf_token %}
+        {{ form }}
+
+        <div class="additional-links">
+            <label class="forgot-password"><a href="{% url 'reset_password' %}">Forgot your Password?</a></label>
+            <label class="new-account"><a href="{% url 'register_page' %}">Don't have an account yet?</a></label>
+        </div>
+
+        <input type="submit" class='button' value="Log In">
+    </form>
+
+    <a href="{% url 'legal_page' %}" class="legal-notice">Legal</a>
 {% endblock content %}

@@ -1,0 +1,17 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 402 433" width="402" height="433">
+	<title>logotip</title>
+	<defs>
+		<image  width="356" height="384" id="img1" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAWQAAAGACAMAAACtEOiGAAAAAXNSR0IB2cksfwAAAJBQTFRFAAAAAAAATU1N2dnZj5KT8vLyXl5e////qKiocnJys0QANjY2vVUAxmgDzHUEv1cAuEoAyWwD0HwGxWQBv1oAx2sDz3gG2pQQ3Z4XyW4D04IJ2ZAO4agh/Pvr2ZMQuE0A3ZoU57gy9ued9eSW6sJA04MJwl4A57cx0YIH3JoVwF0Aw2EBxWcB6r8/6Lw5x2kD3frtrAAAADB0Uk5TAP//////////////////////////////////////////////////////////////ys+fXQAABIFJREFUeJzt3WuSEzcYhtExCZAEksmdGSABArkBCfvfHX+nCsntr1v9dtucZwG2fKrLliVV6erqc+hQa+vhnmeQAx0O904P8rwgB4IcCHIgyIEgB4IcCHIgyIEgB4IcCHIgyIEgT1ZcqGwGeSLIgUpEy4MMeaUgB4IcCHIgyIFGIBemepDnGn9xYgfIkFcLciDIgeLIzbZWWDnIgcLI7RfYO3J9YbIxe4V8PMiBwn+Lm0aQ1w9yIMiBIAeCHAhyIMgz3UpBnu7LTzpVrRhkyP0gB4IcCHIgyIEgT/kMCTLkzZEX+wwJcqAdILeCDLnY5sitIEMuBzkQ5BNGszTIk60EskaQA0EOBDkQ5ECQA0EOBDkQ5ECQA0EOBDnQOshTSzOQA8j3G20tsWKV56yC/KBfS/iykVst38GGPBnkQJADlY4JQJ4X5ECFaR3kuUEOBDkQ5ECQA0EOBDkQ5ECQA0EOBDkQ5ECQA0EOBDkQ5ECQAxUOpECe6GEpyLPaGfJlyo9Bbm6uHkX+qhFkyPMbgfx1I8h3ghwIciDIgSAHghwIciDIgSAPJloeZMiQIUOGDBkyZMiQIUOGDHmnyDt1hwwZ8jjkVpAhQx6KnCZaHuRAkANBDgQ5EORAkANBDgQ50E6RvymWoKqOqR9kyJAhQ4YMGTJkyJA3QD5NHTJkyJAhQ4YMGTJkyJAhQ4YMGTJkyJAhQ14DectqH7cPDPlISeS56pAhTwc5EORAkANBDgQ5EORAkANBDgQ5EORAkANBDgQ5EORAkANBDjQcuRFkyOs3GLl2bSpkyMOCPLBHQ2pfP3vnItrqLcsnwReQH3f7dkaQLxi5eSX40SBDhgwZMmTIkCFDhgwZMmTIkCFDhgz5IpDbQYZ8Xsg9esiQIZ8d8tTm6PRWKeQ9IY/84ftuhyW+AmrI18vaGrTVTpAXykKGDDkQ5ECQA0EOBDkQ5ECQA0EOBDkQ5IF93wkyZMiQIe8GObKlBBlyADkmeSTIgSAHghwIciDIgSAHOhx+GBbkTpADbYL84/ggQ4a8epADQQ4EORDkQJADQQ4EORDkQJADQQ4EORDkQJADQQ4EORDkQJADXTxyuQWU/X4q9nO1X7r92ulJr5tqe0G+vmTkm5vb/tu3WoR85OAPZMiQzwC5pgzZkwwZMmTIkCFDhgwZMmTIkCFDhgwZMmTIkCFDhnwU2fbTDp/k2Sc1PmPkmvEy5Kflno3qeaLfev2+dkuQhxlDhgwZMmTIkCFDhgwZMmTIkCFDhgwZMmTIkCFDhgwZMmTIkCGfN/KLXre9XvZ6tXp/rN/rbm86/dkJct0YMmTIkCFDhgwZ8k6RzZMhQ4YMGTJkyJAhQ4YMGTJkyJAhQ4YMGfJ2yH/1+rsX5C2R/xnVw3H9W61H2W8B8lvIJ/auE2TIkCFDhgwZMmTIkCFDhgwZMmTIkCFDhgwZMmTIkCFDhrxP5Pczelvpv251y//LfejUI6sHGTJkyJAhQ4YMGTJkyJAhQ4YMGTJkyJAhQ4YMGTJkyJAhQ750ZK0X5EBXVx8Bd4A4Z3IHHa8AAAAASUVORK5CYII="/>
+	</defs>
+	<style>
+		.s0 { fill: #4d4d4d } 
+	</style>
+	<use id="форма 3" href="#img1" x="22" y="25"/>
+	<path id="форма 10" class="s0" d="m334 119h3v41h-3z"/>
+	<path id="форма 9" class="s0" d="m313 96h22v25h-22z"/>
+	<path id="форма 8" class="s0" d="m294 96h22v2h-22z"/>
+	<path id="форма 7" class="s0" d="m293 48h2v50h-2z"/>
+	<path id="форма 6" class="s0" d="m248 46h47v4h-47z"/>
+	<path id="форма 5" class="s0" d="m206 48h47v19h-47z"/>
+	<path id="форма 4" class="s0" d="m120 80h68v4h-68z"/>
+</svg>

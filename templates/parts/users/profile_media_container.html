@@ -1,0 +1,15 @@
+<div class="card-container">
+    {% for media in media_list %}
+        <div class="card image-card">
+            <img src="{{media.image.url}}" alt="{{media.title}}">
+            <p>{% if media.title %}{{media.title}}{% endif %}</p>
+            <div class="card-info">
+                <p>by {% include 'parts/users/username_display.html' with user=media.profile.user %}</p> 
+                <p class="date">on {{media.created_at|date}}</p>
+                <p class="more"><a href="{% url 'media_detail' media.pk %}">Check it Out</a></p>
+            </div>
+        </div>
+    {% empty %}
+        <h2 class="grey nowrap">None yet, come back here later!</h2>
+    {% endfor %}
+</div>

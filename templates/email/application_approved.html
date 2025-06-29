@@ -1,0 +1,11 @@
+{% extends 'parts/email_base.html' %}
+{% block content %}
+<h1>Your Registration Application has been Approved!</h1>
+<p>Dear {{ user.username }},</p>
+<p>We are glad to let you know that your registration application has been reviewed and approved!</p>
+<p>Now, in order to log into your account, feel free to visit the Log In page <a href="{{settings.SITE_URL}}">here</a> or visit our website directly ({{settings.SITE_URL}}).</p>
+<p>If you have any questions, please feel free to <a href="mailto:{{settings.EMAIL_HOST_USER}}">contact us</a>.</p>
+<br>
+<p>Best regards,</p>
+<p>Igni et Ferro Team</p>
+{% endblock content %}

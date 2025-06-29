@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    {% include 'parts/email_inline_css.html' %}
+</head>
+<body>
+    <div class="email-body">
+        <div class="stripe"></div>
+        <div class="content">
+            {% block content %}
+            {% endblock content %}
+        </div>
+    </div>
+</body>
+</html>

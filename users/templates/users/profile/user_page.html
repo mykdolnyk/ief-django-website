@@ -4,88 +4,110 @@
 
 
 {% block content %}
-    <h1>{{ profile.user.username }}</h1>
-    <img src="{{ profile.pfp.url }}" alt="{{ profile.user.username }} Profile Picture" style="border: 1px solid black; width: 120px; image-rendering: pixelated;">
-    <h2>Total likes: <strong>{{ total_likes }}</strong></h2>
-    <h2>Total subscribers: <strong>{{ total_subscribers }}</strong></h2>
-    
-    <h3>My Bio:</h3> 
-    <p>{{ profile.bio }}</p>
+    <div class="user-page">
+        <div class="user-page-left">
+            <div class="user-short-info">
+                <img src="{{profile.pfp.url}}" alt="" class="pfp">
+                <h1>{{ profile.user.username }}</h1>
+                <p class="user-likes"><b id="like-count">{{ profile.total_blog_likes}}</b> Likes</p>
+                <p class="user-subs"><b id="subscriber-count">{{ profile.subscribers.count}}</b> Followers</p>
+            </div>
 
-    {% comment %} 'Subscribe' or 'Unsubscribe' button {% endcomment %}
-    {% if profile.user != request.user %}
-        <form action="{% url 'user_subscribe' profile.slug %}" method='post'>
-            {% csrf_token %}
-            {% if request_user_is_subscribed %}
-                <input type="hidden" name="action" value='delete'>
-                <input type="submit" value="Unsubscribe">
-            {% else %}
-                <input type="hidden" name="action" value='post'>
-                <input type="submit" value="Subscribe">
-            {% endif %}
-        </form>
-        
-    {% endif %}
+            <div class="background">
+                <div class="elements-inline">
+                    <a href="{% url 'user_followings' profile.slug %}"><h3>Followers</h3></a>
+                    {% include 'parts/users/subscribe_unsubscribe_button.html' with user_profile=profile additional_classes='slim' %}
+                </div>
+                <div class="user-subscribers">
+                    {% for subscription_profile in subscribers %}
+                        <a href="{% url 'user_page' subscription_profile.slug %}"><img src="{{subscription_profile.pfp.url}}" alt="{{subscription_profile.user.username}}"></a>
+                    {% endfor %}
+                    <a class="more-button" href="{% url 'user_followings' profile.slug %}"></a>
+                </div>
+            </div>
+            
+            <div class="background user-awards">
+                <a href="{% url 'user_award_list' profile.slug %}"><h3>Awards</h3></a>
 
+                {% for user_award in profile.user.awards.filter %}
+                    <div class="award-card-mini">
+                        <img src="{{ user_award.type.picture.url }}" alt="{{ user_award.type.name }}">
+                        <p>{{ user_award.type.name }}</p>
+                    </div>
+                {% empty %}
+                    None yet...
+                {% endfor %}
+            </div>
 
-    <h3><a href="{% url 'user_media_list' profile.user.profile.slug %}">My Pics:</a></h3>
-    <ul>
-        {% for pic in media_list %}
-            <li>
-                <img src="{{ pic.image.url }}" alt="{{award.type.description}}" style="height:2cm;">
-                {% if pic.title %}
-                    {{ pic.title }}
-                {% endif %}
-            </li>
-        {% empty %}
-        None yet...
-        {% endfor %}
-    </ul>
+            <div class="background user-signing">
+                <h3>Signing</h3>
+                <p>
+                    {% if profile.signing %}
+                    {{ profile.signing }}
+                    {% else %}
+                    <i class="grey">Nothing for now...</i>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
 
-    <h3><a href="{% url 'user_blog_list' profile.user.profile.slug %}">My Posts:</a></h3>
-    {% for post in post_list %}
-        <ul>
-            <a href={% url 'blog_page' post.section.slug post.slug %}><li>{{ post.title }}</li></a>
-        </ul>
-    {% empty %}
-        None yet...
-    {% endfor %}
+        <div class="user-page-right">
+            <div class="background user-bio">
+                <div class="elements-inline">
+                    <h3>Bio</h3>
+                    {% if request.user == profile.user %}
+                    <a href="{% url 'user_edit' profile.slug %}" class="button slim">Edit the Profile</a>
+                    {% endif %}                    
+                </div>
+                <p>
+                    {% if profile.bio %}
+                    {{ profile.bio }}
+                    {% else %}
+                    <i class="grey">Nothing for now...</i>
+                    {% endif %}
+                </p>
+            </div>
+            
+            <div class="background">
+                <a href="{% url 'user_media_list' profile.slug %}"><h3>Media</h3></a>
+                <div class="user-media">
+                    {% for pic in media_list %}
+                        <div class="background-inside media-card-mini">
+                            <a href="{% url 'user_media_detail' profile.slug pic.pk %}"><img src="{{ pic.image.url }}" alt="{{pic.title}}"></a>
+                            <p>{{pic.title}}</p>
+                        </div>
+                    {% empty %}
+                    {% endfor %}
 
-    <h3><a href="{% url 'user_award_list' profile.user.profile.slug %}">My Awards:</a></h3>
-    {% for user_award in profile.user.awards.filter %}
-        <ul>
-            <li>
-                <img src="{{ user_award.type.picture.url }}" alt="{{user_award.type.description}}" style="height: 16px;">
-                {{ user_award.type.name }}
-            </li>
-        </ul>
-    {% empty %}
-        None yet...
-    {% endfor %}
+                    <div class="media-card-mini">
+                        <a href="{% url 'user_media_list' profile.slug %}" class="more-button more-button-big"></a>
+                        <p></p>
+                    </div>
+                </div> 
+            </div>
 
-    <h3><a href="{% url 'user_followings' profile.slug %}">My Followers:</a></h3>
-    {% for subscription_profile in subscribers %}
-        <ul>
-            <li><a href="{% url 'user_page' subscription_profile.slug %}">{{ subscription_profile.user.username }}</a></li>
-        </ul>
-    {% empty %}
-        None...
-    {% endfor %}
-
-    <h3>My Signing:</h3>
-        <p>{{ profile.signing }}</p>
-
-    <h2>Comments:</h2>
-    <div>
-        <h3>Create a comment yourself:</h3>
-            <form action="{% url 'user_create_comment' profile.slug %}" method="post">
-                {% csrf_token %}
-                {{ comment_form }}
-                <input type="submit" value="Post">
-            </form>
+            <div class="background">
+                <a href="{% url 'user_blog_list' profile.slug %}"><h3>Posts</h3></a>
+                <div class="user-posts">
+                     {% for post in post_list %}
+                        <div class="background-inside post-card-mini">
+                            <p class="title"><a href="{% url 'blog_page' post.section.slug post.slug %}">{{ post.title }}</a></p>
+                            <p class="text">{{ post.text|striptags|safe|truncatewords:20 }}</p>
+                        </div>
+                    {% endfor %}
+                    <a href="{% url 'user_blog_list' profile.slug %}" class="more-button more-button-big"></a>
+                </div>
+            </div>
+        </div>
 
     </div>
 
-    {% include 'parts/comment_list.html' with comments=comments%}
+    {% include 'parts/users/user_comment_section.html' with comments=comments %}
 
 {% endblock content %}
+
+{% block connect_js %}
+{{block.super}}
+{% load static %}
+<script src="{% static 'js\users\subscribe_button.js' %}"></script>
+{% endblock connect_js %}

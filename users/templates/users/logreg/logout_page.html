@@ -2,19 +2,17 @@
 
 {% block title %}Logout{% endblock title %}
 
+{% block main_class %}flex-center{% endblock main_class %}
+
 {% block content %}
-    <h1>Logout page</h1>
-    <hr>
-    <h2>Are you sure you want to log out?</h2>
-        <form method='post'>
-            {% csrf_token %}
-            {% comment %} <input type=hidden value='yes' name='choice'> {% endcomment %}
-            <input type=submit value='Yes' name='yes'>
-            <input type=submit value='No, take me back!' name='no'>
-        </form>
-    <hr>
-        is authenticated: {{ user.is_authenticated }}, {{ user.username }}
-        <br>
-        {{ appl }}
-    <hr>
+    <h1>Log Out from IeF?</h1>
+    <form class="grid-form logout-form" method="post">
+        {% csrf_token %}
+        <p>You won't be able to access the website until you are logged in again.</p>
+        {% comment %} <a class='button' href="#">Yes, Log Out</a>
+        <a class='button' href="#">No, Take me Back!</a> {% endcomment %}
+        {% comment %} TODO: JS BUTTONS! {% endcomment %}
+        <input type="submit" value="Yes, Log Out" class='button' name='yes'>
+        <input type="submit" value="No, Take me Back!" class='button' name='no'>
+    </form>
 {% endblock content %}

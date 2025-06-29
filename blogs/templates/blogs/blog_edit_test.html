@@ -1,0 +1,17 @@
+{% extends 'parts/base.html' %}
+
+{% block title %}Update Your Existing Post{% endblock title %}
+
+{% block main_class %}{% endblock main_class %}
+
+{% block content %}
+    <div>
+        <h1>Update Your Existing Post</h1>
+        {{ form.media }}
+        <form action="" method="post" class='blog-edit-form'>
+            {{ form }}
+            {% csrf_token %}
+            <input class='button' type="submit" value="Publish">
+        </form>
+    </div>
+{% endblock content %}

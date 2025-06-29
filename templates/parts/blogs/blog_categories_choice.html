@@ -1,0 +1,12 @@
+<h2>
+    {{ blog_categories_heading }}
+</h2>
+
+<ul class='category-list'>
+    <li><a href="{% url 'blog_list' %}" class="button {% if not current_section %}chosen{% endif %}">All</a></li>
+
+    {% for section in sections %}
+        <li><a href="{% url 'blog_section' section.slug %}" class="button {% if section.slug == current_section.slug %}chosen{% endif %}">{{ section.name }}</a></li>
+    {% endfor %}
+</ul>
+

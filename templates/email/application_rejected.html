@@ -1,0 +1,10 @@
+{% extends 'parts/email_base.html' %}
+{% block content %}
+<h1>Your Registration Application has been Rejected</h1>
+<p>Dear {{ user.username }},</p>
+<p>We are sorry to inform you know that your registration application has been rejected.</p>
+<p>If you have any questions, please feel free to <a href="mailto:{{settings.EMAIL_HOST_USER}}">contact us</a>.</p>
+<br>
+<p>Best regards,</p>
+<p>Igni et Ferro Team</p>
+{% endblock content %}

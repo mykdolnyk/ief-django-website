@@ -1,32 +1,43 @@
 {% extends 'parts/base.html' %}
 
-{% block title %}{{ blog.title }} Blog{% endblock title %}
+{% block title %}"{{ blog.title }}" Blog{% endblock title %}
+
+{% block connect_css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/43.3.1/ckeditor5.css" />
+{% endblock connect_css %}
+
+{% block main_class %}main-flex{% endblock main_class %}
 
 {% block content %}
-    <h1>{{ blog.title }}{% if request.user == blog.author %}-<a href="{% url 'blog_edit' blog.section.slug blog.slug %}">Edit</a>{% endif %}</h1>
-    <h2>by {{ blog.author.username }}, on {{ blog.created_at|date:"E d, Y" }}</h2>
-    <h3>Likes: {{ blog.likes.count }} | <a href="{% url 'blog_like' blog.section.slug blog.slug %}">Like</a></h3>
+    <div class="blog-info-box">
+        <div>
+            <h1>{{ blog.title }}</h1>
+            <p>by {% include 'parts/users/username_display.html' with user=blog.author %} on {{blog.created_at|date}}</p>
+            <div class="background like-button-box">
+                <span>❤️<b id="like-count">{{ blog.likes.count }}</b></span>
+                <button class="button" onclick='processLike(this)'>Like!</button>
 
-    <hr>
-    <div class='ck-content'>
-        {{ blog.text|safe }}
-    </div>
-    <h4>"{{blog.author.profile.signing}}"</h4>
+                {% include 'parts/users/subscribe_unsubscribe_button.html' with user_profile=blog.author.profile%}
+             </div>
+        </div>
 
-    <hr>
-
-    <h2>Comments:</h2>
-
-    <div>
-        <h3>Create a comment yourself:</h3>
-            <form action="{% url 'blog_create_comment' blog.section.slug blog.slug %}" method="post">
-                {% csrf_token %}
-                {{ comment_form }}
-                <input type="submit" value="Post">
-            </form>
-
+        {% if request.user == blog.author %}
+            <a href="{% url 'blog_edit' blog.section.slug blog.slug %}" class="button">Edit</a>
+        {% endif %}
     </div>
 
-    {% include 'parts/comment_list.html' with comments=comments%}
+    <div class='background ck-content blog-text-box'>
+        {{ blog.text|safe }}     
+    </div>
+
+    {% include 'parts/blogs/blog_comment_section.html' with comments=comments %}
 
 {% endblock content %}
+
+{% block connect_js %}
+    {{block.super}}
+    {% load static %}
+    <script src="{% static 'js\blogs\like_button.js' %}"></script>
+    <script src="{% static 'js\users\subscribe_button.js' %}"></script>
+{% endblock connect_js %}

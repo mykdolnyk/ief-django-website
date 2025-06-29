@@ -1,0 +1,11 @@
+{% for field in form %}
+    <div>
+        {% if field.id_for_label == 'id_password1' %}
+            <label for="id_password1">Password <sup class="note">(Please <strong>Do Not</strong> Use Your Real Passwords)</sup></label>
+        {% else %}
+            {{ field.label_tag }}
+        {% endif %}
+        {{ field }}
+        {{ field.errors }}
+    </div>
+{% endfor %}

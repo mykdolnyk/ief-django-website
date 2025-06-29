@@ -1,18 +1,25 @@
-{% extends "parts/base.html" %}
+{% extends "parts/base_not_logged_in.html" %}
 
 {% block title %}Register{% endblock title %}
 
+{% block main_class %}flex-center{% endblock main_class %}
+
 {% block content %}
-    <h1>Registration page</h1>
-    {% if not form.errors and request.method == 'POST' %}
-        <hr>
-        Your application has been properly sent! Wait for an email from us where we will tell you if you can log into your account.
-    {% endif %}
-    <hr>
-        <form method='post'>
-            {% csrf_token %}
-            {{ form }}
-            <input type=submit>
-        </form>
-        
+    <h1>Register for IeF</h1>
+    <form class="grid-form register-form" method="post">
+        {% csrf_token %}
+        {% comment %} {{ form.errors }} {% endcomment %}
+        {% comment %} {% for field, error in form.errors.items %}
+            {{error}}
+        {% endfor %} {% endcomment %}
+        {{ form }}
+        <div class="additional-links">
+            <label class="existing-account"><a href="{% url 'login_page' %}">Already have an account?</a></label>
+        </div>
+
+        <input type="submit" class='button' value="Send the Application">
+            
+    </form>
+
+    <a href="{% url 'legal_page' %}" class="legal-notice">Legal</a>
 {% endblock content %}

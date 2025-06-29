@@ -1,0 +1,25 @@
+<h2>Comments</h2>
+<section class="comment-section" id="comment-section">
+    <form action="{% block form_action %}{% endblock form_action %}" method="post">
+        {% csrf_token %}
+        {{ comment_form }}
+        <input type="submit" value="Comment" class="button"> 
+    </form>
+
+    {% for comment in comments %}
+        {% if comment.is_visible %}
+            <div class="card comment-card">
+                <div>
+                    {% if comment.owner.username %}
+                        <img src="{{ comment.owner.profile.pfp.url }}" alt="{{ comment.owner.username }}'s Profile Picture" class="pfp">
+                        <p class="author"><a href="{% url 'user_page' comment.owner.profile.slug %}">{{ comment.owner.username }}</a></p>
+                    {% else %}
+                        <p class="author">Deleted User</p>
+                    {% endif %}
+                    <p class="date">on {{ comment.created_at|date }}</p>
+                </div>
+                <p>{{ comment.text }}</p>
+            </div>
+        {% endif %}
+    {% endfor %}
+</section>

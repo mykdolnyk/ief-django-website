@@ -2,7 +2,89 @@
 
 {% block title %}Index Page{% endblock title %}
 
+{% block main_class %}main-flex{% endblock main_class %}
+
 {% block content %}
-    <h1>Hello! That's an index page.</h1>
-    {% lorem 3 b random %}
+<div class="index-page">
+    <div class="index-page-left">
+
+        <div class="background random-sight">
+            {% if sight %}
+            <a href="{% url 'blog_page' sight.section.slug sight.slug %}">
+                <h3>Did you hear about <strong>{{sight.title}}</strong>?</h3>
+            </a>
+            <p>{{ sight.text|striptags|safe|truncatewords:30|truncatechars:250 }} <a href="{% url 'blog_page' sight.section.slug sight.slug %}">More...</a></p>
+            {% else %}
+                <h3>No sights were yet documented...</h3>
+            {% endif %}
+        </div>
+
+        <div class="background ">
+            <a href="{% url 'blog_list' %}"><h3>Hot Posts!</h3></a>
+            <div class="random-blogs">
+                {% for blog in blog_list %}
+                    <div class="background-inside random-blog-card">
+                        <a href="{% url 'blog_page' blog.section.slug blog.slug %}"><h4>{{ blog.title }}</h4></a>
+                        <p>{{ blog.text|striptags|safe|truncatewords:50 }} <a href="{% url 'blog_page' blog.section.slug blog.slug %}">More...</a></p>
+                    </div> 
+
+                {% empty %}
+                    <h4>There are no posts yet... <a href="{% url 'blog_create' %}">Create one</a>!</h4>
+                {% endfor %}
+
+            </div>
+        </div>
+    </div>
+
+    <div class="index-page-right">
+        {% with top1=top_players.0 top2=top_players.1 top3=top_players.2 %}
+
+            <div class="background">
+                <a href="{% url 'user_list' %}"><h3>Top Players of IeF</h3></a>
+                <div class="top-players">
+
+                    {% if top2 %}
+                        <div class="top-position top-2">
+                            <a href="{% url 'user_page' top2.slug %}" class="white-link">
+                                <p>{{ top2.user.username }}</p>
+                                <img src="{{top2.pfp.url}}" class="pfp">
+                            </a>
+                            <div class="pedestal"><a href="{% url 'user_blog_list' top2.slug %}">{{top2.user.blogs.count}}<br>Posts</a></div>
+                        </div>
+                    {% endif %}
+
+                    {% if top1 %}
+                        <div class="top-position top-1">
+                            <a href="{% url 'user_page' top1.slug %}" class="white-link">
+                                <div class="crown gold-glow-text">👑</div>
+                                <p class="gold-glow-text">{{ top1.user.username }}</p>
+                                <img src="{{top1.pfp.url}}" class="pfp gold-glow-box">
+                            </a>
+                            <div class="pedestal gold-glow-box"><a href="{% url 'user_blog_list' top1.slug %}">{{top1.user.blogs.count}}<br>Posts</a></div>
+                        </div>
+                    {% else %}
+                    <p>
+                        You will see top Igni et Ferro players here!
+                    </p>
+                    {% endif %}
+
+                    {% if top3 %}
+                        <div class="top-position top-3">
+                            <a href="{% url 'user_page' top3.slug %}" class="white-link">
+                                <p>{{ top3.user.username }}</p>
+                                <img src="{{top3.pfp.url}}" class="pfp">
+                            </a>
+                            <div class="pedestal"><a href="{% url 'user_blog_list' top3.slug %}">{{top3.user.blogs.count}}<br>Posts</a></div>
+                        </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        {% endwith %}
+        <div class="background message">
+            <h3>A Message from Above</h3>
+            <p>{{admin_message}}</p>
+        </div>
+    </div>
+</div>
 {% endblock content %}

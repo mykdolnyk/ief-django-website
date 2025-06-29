@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% block connect_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% endblock connect_css %}
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{% static 'logo.svg' %}">
+    <title>{% block title %}{% endblock title %} - Igni et Ferro</title>
+</head>
+<body class="body-not-logged-in">
+    <header class="header-not-logged-in">
+        <a class="header-logo">
+            <img src="{% static 'logo.png' %}" alt="IeF Logo">
+            <p><span class='logo-igni'>Igni</span> <span class='logo-et'>et</span> <span class='logo-ferro'>Ferro</span></p>
+        </a>
+    </header>
+
+    <main class="flex-center {% block main_class %}{% endblock main_class %}">
+        {% block content %}{% endblock content %}
+        {% include 'parts/messages_window.html' %}
+    </main>
+
+    <footer>
+    </footer>
+
+    {% block connect_js %}
+    {% load static %}
+    <script src="{% static 'js\messages.js' %}"></script>
+    {% endblock connect_js %}
+
+</body> 
+</html>

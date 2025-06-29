@@ -1,0 +1,14 @@
+{% extends 'parts/base_not_logged_in.html' %}
+
+{% block title %}{{title}}{% endblock title %}
+
+{% block main_class %}main-flex{% endblock main_class %}
+
+{% block content %}
+    <h1>{{title}}</h1>
+    <div class="system-message-box">
+        <h2>{{heading}}</h2>
+        <p>{{description}}</p>
+    </div>
+    <a href="{% url 'index_page' %}" class="button">Go Home</a>
+{% endblock content %}

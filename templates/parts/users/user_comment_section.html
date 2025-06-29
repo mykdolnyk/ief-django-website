@@ -1,0 +1,3 @@
+{% extends 'parts/comment_section.html' %}
+
+{% block form_action %}{% url 'user_create_comment' profile.slug %}{% endblock form_action %}

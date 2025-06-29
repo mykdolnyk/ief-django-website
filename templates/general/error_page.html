@@ -1,0 +1,13 @@
+{% extends 'parts/base_not_logged_in.html' %}
+
+{% block title %}Oops!{% endblock title %}
+
+{% block content %}
+<h1>Oops!</h1>
+<div class="system-message-box">
+    <h2>Error {{status}}</h2>
+    <p>{{description}}</p>
+    <a href="{% url 'index_page' %}" class="button">Go Home</a>
+</div>
+{% endblock content %}
+

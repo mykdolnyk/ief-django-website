@@ -1,0 +1,6 @@
+{% if user.is_active %}
+<img src="{{ user.profile.pfp.url }}" alt="{{ user.username }}'s Profile Picture" class="pfp">
+<p class="author"><a href="{% url 'user_page' user.profile.slug %}">{{ user.username }}</a></p>
+{% else %}
+<p class="author">Deleted User</p>
+{% endif %}

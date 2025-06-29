@@ -2,26 +2,26 @@
 
 {% block title %}{{ profile.user.username }} Followings{% endblock title %}
 
+{% block main_class %}main-flex{% endblock main_class %}
 
 {% block content %}
-<h2>{{ profile.user.username }} Followers:</h2>
+    <div class="elements-inline">
+        <h1><a href="{% url 'user_page' profile.slug %}">{{ profile.user.username }}</a> <span id="currently-displaying">Following</span></h1>
 
-{% for subscription_profile in subscriber_list %}
-    <ul>
-        <li><a href="{% url 'user_page' subscription_profile.slug %}">{{ subscription_profile.user.username }}</a></li>
-    </ul>
-{% empty %}
-    None...
-{% endfor %}
+        <ul class="category-list">
+            <button class="button chosen" id="following-button">Following</button>
+            <button class="button" id="followers-button">Followers</button>
+        </ul>
+    </div>
 
-<h2>{{ profile.user.username }} Follows:</h2>
+    {% include 'parts/users/player_card_container.html' with user_profile_list=subscriber_list section_id='followers-section' hidden=True %}
 
-{% for subscription_profile in subscription_list %}
-    <ul>
-        <li><a href="{% url 'user_page' subscription_profile.slug %}">{{ subscription_profile.user.username }}</a></li>
-    </ul>
-{% empty %}
-    None...
-{% endfor %}
+    {% include 'parts/users/player_card_container.html' with user_profile_list=subscription_list section_id='following-section' %}
 
 {% endblock content %}
+
+{% block connect_js %}
+{{ block.super }}
+{% load static %}
+<script src="{% static 'js\users\followings_page.js' %}"></script>
+{% endblock connect_js %}

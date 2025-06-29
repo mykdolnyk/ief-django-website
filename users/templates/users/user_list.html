@@ -2,13 +2,9 @@
 
 {% block title %}User List{% endblock title %}
 
+{% block main_class %}main-flex{% endblock main_class %}
+
 {% block content %}
-    <h1>User List</h1>
-    <ul>
-        {% for user_profile in userprofile_list %}
-            <li><a href="{% url 'user_page' user_profile.slug %}">{{ user_profile.user.username }}</a></li>
-        {% empty %}
-            There are no users yet...
-        {% endfor %}
-    </ul>
+    <h1>IeF Players</h1>
+    {% include 'parts/users/player_card_container.html' with user_profile_list=userprofile_list %}
 {% endblock content %}
