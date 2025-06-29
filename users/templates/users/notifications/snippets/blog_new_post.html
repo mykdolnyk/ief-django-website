@@ -1,0 +1,2 @@
+{% include 'parts/users/username_display.html' with user=blog.author%}
+just made a new post: "<a href="{% url 'blog_page' blog.section blog.slug %}">{{blog.title}}</a>". Go check it out!

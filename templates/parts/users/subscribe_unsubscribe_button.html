@@ -4,15 +4,6 @@ Receives 2 arguments:
     additional_classes - a string of characters, should include additional classes that the buttons will have.
 {% endcomment %}
 
-{% comment %} 
-{% if user_profile == request.user.profile or not user_profile.user.is_active %}
-{% elif user_profile not in request.user.profile.subscriptions.all %}
-<a href="{% url 'user_subscribe' user_profile.slug %}?action=post&amp;prev={{ request.get_full_path }}" class="button {{additional_classes}}">Follow!</a>
-{% else %}
-<a href="{% url 'user_subscribe' user_profile.slug %}?action=delete&amp;prev={{ request.get_full_path }}" class="button {{additional_classes}}">Unfollow</a>
-{% endif %} 
-{% endcomment %}
-
 {% if user_profile == request.user.profile or not user_profile.user.is_active %}
 {% elif user_profile not in request.user.profile.subscriptions.all %}
 <button onclick="processSubscription('{% url 'user_subscribe' user_profile.slug %}', this)" class="button">Follow!</button>

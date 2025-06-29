@@ -695,7 +695,7 @@ form {
     flex-direction: column;
 
     background-color: var(--div-bg-color);
-    border-radius: 2%;
+    border-radius: 10px;
 
     gap: 15px;
 }

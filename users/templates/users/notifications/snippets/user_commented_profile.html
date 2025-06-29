@@ -1,0 +1,2 @@
+{% include 'parts/users/username_display.html' with user=comment.owner%}
+made a comment on <a href="{% url 'user_page' comment.profile.user %}">your profile</a>: {{ comment.text|truncatewords:10|truncatechars:150 }}
