@@ -1,12 +1,7 @@
-from typing import Any, Mapping
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UserChangeForm, UsernameField
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django import forms
-from django.core.files.base import File
-from django.db.models.base import Model
-from django.forms.utils import ErrorList
-
 
 from users.models import ProfileComment, ProfileMedia, UserProfile
 from .helpers import mcuser
