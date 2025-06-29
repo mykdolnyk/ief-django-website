@@ -12,7 +12,7 @@ urlpatterns = [
     path("user/<int:id>/posts/", views.user_post_list, name="user_post_list"),
     path("user/notifications/", views.user_notifications, name="user_notifications"),
     
-    path('login/', views.login, name='login'),
-    path('register/', views.register, name='register'),
-    path('logout/', views.logout, name='logout'),
+    path('login/', views.login_page, name='login_page'),
+    path('register/', views.register_page, name='register_page'),
+    path('logout/', views.logout_page, name='logout_page'),
 ]
