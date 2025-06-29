@@ -13,3 +13,14 @@ class BlogCreationForm(forms.ModelForm):
                   attrs={"class": "django_ckeditor_5"}, config_name="extends"
               )
           }
+
+
+class BlogCommentCreationForm(forms.ModelForm):
+    action = forms.CharField(widget=forms.HiddenInput(), initial='create')
+    
+    class Meta:
+        model = models.BlogComment
+        fields = ("text",)
+        widgets = {
+            'text': forms.Textarea()
+        }

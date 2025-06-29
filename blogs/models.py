@@ -5,6 +5,8 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 import django_ckeditor_5.fields
 from django.utils.text import slugify
+
+from helpers.models import AbstractComment
 # Create your models here.
 
 
@@ -61,10 +63,8 @@ class BlogTags(models.Model):
     tag = models.ForeignKey(Tag, verbose_name=_("Tag"), on_delete=models.CASCADE)
     
 
-class BlogComment(models.Model):
-    blog = models.ForeignKey(Blog, verbose_name=_("Blog"), on_delete=models.CASCADE)
-    text = models.CharField(max_length=512)
-    is_visible = models.BooleanField(default=False)
+class BlogComment(AbstractComment):
+    blog = models.ForeignKey(Blog, verbose_name='Blog', on_delete=models.SET_NULL, null=True)
     
     
 class BlogMedia(models.Model):

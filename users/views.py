@@ -32,18 +32,14 @@ class UserListView(LoginRequiredMixin, ListView):
 def user_page(request: HttpRequest, slug: str):
     profile = users.get_userprofile_or_404(slug)
 
-    context = {'profile': profile}
-
-    # TODO: periodical PFP update (caching)
-    context['media_list'] = ProfileMedia.objects.filter(profile=profile, is_visible=True)
-        
-    # Load existing comments
-    context['comments'] = ProfileComment.objects.filter(profile=profile, is_visible=True).order_by('-created_at').all()
-    # Load comment creation form
-    context['comment_form'] = ProfileCommentCreationForm()
-    
-    context['request_user_is_subscribed'] = profile in request.user.profile.subscriptions.all() # The current user is a subscriber of this user
-    context['subscribers'] = UserProfile.objects.subscribers(profile)[:3]
+    context = {
+        'profile': profile,
+        'media_list': ProfileMedia.objects.filter(profile=profile, is_visible=True), # TODO: periodical PFP update (caching)
+        'comments': ProfileComment.displayed_objects.filter(profile=profile),
+        'comment_form': ProfileCommentCreationForm(),
+        'request_user_is_subscribed': profile in request.user.profile.subscriptions.all(), # The current user is a subscriber of this user
+        'subscribers': UserProfile.objects.subscribers(profile)[:3]
+        }
 
     return render(request, 'users/profile/user_page.html', context)
 
@@ -59,7 +55,6 @@ def create_comment(request: HttpRequest, slug: str):
     
     if form.is_valid():
         new_comment: ProfileComment = form.save(commit=False)
-        
         
         new_comment.profile = profile # The comment is created on the profile that is was written on
         new_comment.is_visible = True # It is set to be visible

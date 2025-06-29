@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
 from users.helpers.mcuser import username_to_mc_uuid
+from helpers.models import AbstractComment
 
 class UserProfileManager(models.Manager):
     """User manager class that implements some useful methods.
@@ -39,17 +40,8 @@ class UserProfile(models.Model):
         return super().save(*args, **kwargs)
 
 
-class ProfileComment(models.Model):
+class ProfileComment(AbstractComment):
     profile = models.ForeignKey(UserProfile, verbose_name='UserProfile', on_delete=models.SET_NULL, null=True)
-    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    text = models.CharField(max_length=512)
-    is_visible = models.BooleanField(default=False)
-    
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    
-    def __str__(self):
-        return f'<{self.profile.user.username} Comment: {'not' if self.is_visible else ''} visible>'
     
     
 class ProfileMedia(models.Model):

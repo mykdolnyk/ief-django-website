@@ -63,7 +63,6 @@
         <p>{{ profile.signing }}</p>
 
     <h2>Comments:</h2>
-
     <div>
         <h3>Create a comment yourself:</h3>
             <form action="{% url 'user_create_comment' profile.slug %}" method="post">
@@ -74,20 +73,6 @@
 
     </div>
 
-    {% for comment in comments %}
-            <li>
-                {% if comment.owner.username %}
-                    <a href="{% url 'user_page' comment.owner.profile.slug %}">
-                        <img src="{{ comment.owner.profile.pfp.url }}" alt="{{ comment.owner.profile.user.username }} Profile Picture" style="border: 1px solid black; width: 16px; image-rendering: pixelated;">
-                        {{ comment.owner.username }}
-                    </a>
-                {% else %}
-                        Deleted user
-                {% endif %}
-                - {{ comment.created_at }}
-            </li>
-
-            <p>{{ comment.text }}</p>
-    {% endfor %}
+    {% include 'parts/comment_list.html' with comments=comments%}
 
 {% endblock content %}

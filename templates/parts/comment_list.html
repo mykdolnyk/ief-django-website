@@ -1,0 +1,15 @@
+{% for comment in comments %}
+<li>
+    {% if comment.owner.username %}
+        <a href="{% url 'user_page' comment.owner.profile.slug %}">
+            <img src="{{ comment.owner.profile.pfp.url }}" alt="{{ comment.owner.profile.user.username }} Profile Picture" style="border: 1px solid black; width: 16px; image-rendering: pixelated;">
+            {{ comment.owner.username }}
+        </a>
+    {% else %}
+            Deleted user
+    {% endif %}
+    - {{ comment.created_at }}
+</li>
+
+<p>{{ comment.text }}</p>
+{% endfor %}

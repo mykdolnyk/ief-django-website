@@ -15,9 +15,17 @@
     <hr>
 
     <h2>Comments:</h2>
-    {% for comment in comments %}
-        <p>a comment!</p>
-    {% empty %}
-        <h3>None yet...</h3>
-    {% endfor %}
+
+    <div>
+        <h3>Create a comment yourself:</h3>
+            <form action="{% url 'blog_create_comment' 'a' blog.slug %}" method="post">
+                {% csrf_token %}
+                {{ comment_form }}
+                <input type="submit" value="Post">
+            </form>
+
+    </div>
+
+    {% include 'parts/comment_list.html' with comments=comments%}
+
 {% endblock content %}
