@@ -25,7 +25,7 @@ class UserProfile(models.Model):
     signing = models.CharField('Signing', max_length=64, default='', blank=True)
     mcuuid = models.UUIDField('Minecraft UUID', editable=False)
     slug = models.SlugField(default='', null=False)
-    pfp = models.ImageField('Profile picture', upload_to='pfps', null=True, blank=True)
+    pfp = models.ImageField('Profile picture', upload_to='users/pfps', null=True, blank=True)
     subscriptions = models.ManyToManyField('self', blank=True, symmetrical=False)
     
     objects = UserManager()
@@ -56,7 +56,7 @@ class ProfileComment(models.Model):
 class ProfileMedia(models.Model):
     profile = models.ForeignKey(UserProfile, verbose_name='User Profile', related_name='media_list', on_delete=models.SET_NULL, null=True)
     image = models.ImageField('Profile Image', upload_to="users/profile_media/")
-    title = models.CharField('Profile Media Title', max_length=32, null=True)
+    title = models.CharField('Profile Media Title', max_length=32, null=True, blank=True)
     type = models.SmallIntegerField('Media Type', default=0) # TODO: implement via models.TextChoices
     # 0: photo, 1: video, 2: url photo, 3: url video
     is_visible = models.BooleanField(default=True)

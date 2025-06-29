@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User
 from django.http import Http404
-from users.models import AwardType, RegistrationApplication, UserAward, UserProfile
-from .mcuser import username_to_mc_uuid
+from users.models import AwardType, RegistrationApplication, UserProfile
 from users.helpers import mcuser
 from django.core.files.base import ContentFile
 

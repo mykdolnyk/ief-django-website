@@ -8,7 +8,7 @@ from django.db.models.base import Model
 from django.forms.utils import ErrorList
 
 
-from users.models import ProfileComment, UserProfile
+from users.models import ProfileComment, ProfileMedia, UserProfile
 from .helpers import mcuser
 
 
@@ -189,3 +189,9 @@ class UserUpdateForm(forms.ModelForm):
                 self.save_m2m()
                 
         return user
+
+
+class UploadMediaForm(forms.ModelForm):
+    class Meta:
+        model = ProfileMedia
+        exclude = ("profile", "type", "is_visible")

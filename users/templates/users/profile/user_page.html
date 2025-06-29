@@ -25,16 +25,23 @@
     {% endif %}
 
 
-    <h3>My Pics:</h3>
-    {% for pic in profile.media_list.filter %}
-        <ul>
-            <li>{{ pic.title }}</li>
-        </ul>
-    {% empty %}
+    <h3><a href="{% url 'user_media_list' profile.user.profile.slug %}">My Pics:</a></h3>
+    <ul>
+        {% for pic in media_list %}
+            <li>
+                <img src="{{ pic.image.url }}" alt="{{award.type.description}}" style="height:2cm;">
+                {% if pic.title %}
+                    {{ pic.title }}
+                {% endif %}
+            </li>
+        {% empty %}
         None yet...
-    {% endfor %}
+        {% endfor %}
+    </ul>
 
-    <h3>My <a href="{% url 'user_award_list' request.user.profile.slug %}">Awards:</a></h3>
+
+
+    <h3><a href="{% url 'user_award_list' profile.user.profile.slug %}">My Awards:</a></h3>
     {% for user_award in profile.user.awards.filter %}
         <ul>
             <li>{{ user_award.type.name }}</li>

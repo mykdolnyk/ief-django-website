@@ -1,0 +1,14 @@
+{% extends 'parts/base.html' %}
+
+{% block title %}Upload the Media{% endblock title %}
+
+
+{% block content %}
+
+<form enctype="multipart/form-data" action="" method="post">
+    {{ form }}
+    {% csrf_token %}
+    <input type="submit" value="Upload a new media">
+</form>
+
+{% endblock content %}

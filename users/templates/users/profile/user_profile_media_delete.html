@@ -1,0 +1,30 @@
+{% extends 'parts/base.html' %}
+
+{% block title %}Delete your Media{% endblock title %}
+
+
+{% block content %}
+
+{% if request.user.profile.slug  %}
+    <a href="{% url 'user_media_list' request.user.profile.slug %}">Media List</a>
+    <a href="{% url 'user_media_upload' request.user.profile.slug %}">Upload a new one</a>
+{% endif %}
+
+<h1>Delete your media</h1>
+
+<form action="" method="post">
+    <ul>
+        {% for media in media_list %}
+            <li>
+                <img src="{{ media.image.url }}" alt="{{award.type.description}}" style="height:4cm;">
+                {{ media.title }}
+                <input type="checkbox" name="media_{{ media.id }}">
+            </li>
+        {% endfor %}
+        {% csrf_token %}
+        <input type="submit" value="Delete">
+    </ul>
+</form>
+
+
+{% endblock content %}

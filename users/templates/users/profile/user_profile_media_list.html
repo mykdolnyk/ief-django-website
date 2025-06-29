@@ -1,0 +1,21 @@
+{% extends 'parts/base.html' %}
+
+{% block title %}{{ profile.user.username }} Media{% endblock title %}
+
+
+{% block content %}
+
+{% if request.user.profile.slug  %}
+    <a href="{% url 'user_media_upload' request.user.profile.slug %}">Upload a new one</a>
+    <a href="{% url 'user_media_delete' request.user.profile.slug %}">Delete media</a>
+{% endif %}
+
+<h1>Pictures and other media</h1>
+<ul>
+    {% for media in media_list %}
+        <li><img src="{{ media.image.url }}" alt="{{award.type.description}}" style="height:8cm;"></li>
+        {{ media.title }}
+    {% endfor %}
+</ul>
+
+{% endblock content %}

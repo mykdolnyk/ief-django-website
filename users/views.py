@@ -1,18 +1,16 @@
 from typing import Any
 from django.db.models.query import QuerySet
-from django.forms import ValidationError
-from django.http import Http404, HttpResponseNotAllowed, HttpRequest, HttpResponse
+from django.http import HttpResponseNotAllowed, HttpRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from .forms import ProfileCommentCreationForm, ProfileUpdateForm, UserRegistrationForm, UserUpdateForm
-from .models import ProfileComment, User, UserAward, UserProfile
+from .forms import ProfileCommentCreationForm, ProfileUpdateForm, UploadMediaForm, UserRegistrationForm, UserUpdateForm
+from .models import ProfileComment, ProfileMedia, User, UserAward, UserProfile
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.list import ListView
-from .helpers import users, mcuser
-from django.core.files.base import ContentFile
+from .helpers import users
 from django.conf import settings
 
 
@@ -35,7 +33,7 @@ def user_page(request: HttpRequest, slug: str):
     context = {'profile': profile}
 
     # TODO: periodical PFP update (caching)
-
+    context['media_list'] = ProfileMedia.objects.filter(profile=profile, is_visible=True)
         
     # Load existing comments
     context['comments'] = ProfileComment.objects.filter(profile=profile, is_visible=True).order_by('-created_at').all()
@@ -127,22 +125,81 @@ def user_followings(request: HttpRequest, slug: str):
     return render(request, 'users/profile/user_followings.html', context=context)
 
 
-def user_media_list(request: HttpRequest, slug: str):
-    profile = users.get_userprofile_or_404(slug)
-
-    pass
 class UserMediaList(LoginRequiredMixin, ListView):
-    model = ...
-    template_name = 'users/profile/user_awards.html'
+    model = ProfileMedia
+    template_name = 'users/profile/user_profile_media_list.html'
     login_url = settings.LOGIN_PAGE_NAME
+    context_object_name = 'media_list'
+    
+    def get_queryset(self) -> QuerySet[Any]:
+        # Get only the visible media of the user that is being checked
+        profile = users.get_userprofile_or_404(self.kwargs["slug"]).user.profile
+        return ProfileMedia.objects.filter(profile=profile, is_visible=True)
 
 
+@login_required(login_url=settings.LOGIN_PAGE_NAME)
 def user_media_upload(request: HttpRequest, slug: str):
     profile = users.get_userprofile_or_404(slug)
+    
+    if request.user.profile != profile:
+        return redirect(reverse("user_media_upload", args=(request.user.profile.slug,)))
+    
+    form = UploadMediaForm
+    
+    if request.method == 'POST':
+        form = UploadMediaForm(request.POST, request.FILES)
+        if form.is_valid():
+            new_media = form.save(commit=False)
+            new_media.profile = profile
+            new_media.save()
+            
+            return redirect(reverse('user_media_list', args=(slug,)))
+    else:
+        form = UploadMediaForm
 
-    pass
+    context = {
+        'form': form,
+    }
+    return render(request, 'users/profile/user_profile_media_upload.html', context=context)  
 
 
+@login_required(login_url=settings.LOGIN_PAGE_NAME)
+def user_media_delete(request: HttpRequest, slug):
+    profile: UserProfile = users.get_userprofile_or_404(slug)
+    
+    media_list = profile.media_list.filter(is_visible=True)
+    
+    context = {"media_list": media_list}
+    
+    if request.method == "POST":
+        post_data = request.POST.dict()
+        post_data.pop('csrfmiddlewaretoken')
+        
+        # Parses the form data
+        media_to_delete = []
+        for raw_id in post_data.keys():
+            try:
+                media_id = int(raw_id.removeprefix('media_')) 
+                media_to_delete.append(media_id)
+            except ValueError:
+                # Invalid data (like string "media_noninteger") just gets ignored
+                pass
+
+        for media_id in media_to_delete:
+            try:
+                media: ProfileMedia = media_list.get(pk=media_id)
+                media.delete()
+            except ProfileMedia.DoesNotExist:
+                # Request to remove media of another user or non-existent one just gets ignored
+                pass
+            
+        # return redirect(reverse('user_media_list', args=(slug,)))
+
+    return render(request, 'users/profile/user_profile_media_delete.html', context=context)  
+
+
+
+@login_required(login_url=settings.LOGIN_PAGE_NAME)
 def user_post_list(request: HttpRequest, slug: str):
     profile = users.get_userprofile_or_404(slug)
 
