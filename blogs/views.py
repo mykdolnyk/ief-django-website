@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.http import HttpRequest, HttpResponse, HttpResponseNotAllowed, JsonResponse
+from django.http import Http404, HttpRequest, HttpResponse, HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 import random
@@ -82,8 +82,8 @@ def blog_page(request: HttpRequest, section: str, blog: str):
 
 
 def blog_create_comment(request: HttpRequest, section: str, blog: str):
-    if request.method != 'POST':   
-        return HttpResponseNotAllowed()
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['post'])
 
     blog_instance = get_object_or_404(Blog, slug=blog)
     
@@ -127,10 +127,11 @@ def blog_like(request: HttpRequest, section: str, blog: str):
 
 
 def blog_edit(request: HttpRequest, section: str, blog: str):
-    # ! Prevent other users from accessing the views (either hardcode
-    # ! one user or use permissions)
-    
     blog_instance: Blog = get_object_or_404(Blog, slug=blog)
+    
+    if request.user != blog_instance.author:
+        return HttpResponse(status=401)
+    
     
     if request.method == "POST":
         form = BlogEditForm(request.POST, instance=blog_instance)
@@ -190,7 +191,7 @@ def handle_404(request: HttpRequest, exception=None):
         'description': 'Such page doesn\'t exist.'
     }
     return render(request, 'general/error_page.html', context=context, status=context['status'])
-    
+
 def handle_500(request: HttpRequest, exception=None):
     context = {
         'exception': exception,
