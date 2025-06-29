@@ -1,6 +1,6 @@
 from typing import Any
 from django.db.models.query import QuerySet
-from django.http import Http404, HttpResponseNotAllowed, HttpRequest, JsonResponse
+from django.http import HttpResponseNotAllowed, HttpRequest, JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
 from django.contrib.auth import login, logout
@@ -12,16 +12,15 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
-
 from blogs.models import Blog
 from users.helpers import awards
 from users.helpers import notifications
-from .forms import PasswordResetEmailForm, ProfileCommentCreationForm, ProfileUpdateForm, UploadMediaForm, UserAuthenticationForm, UserRegistrationForm, UserUpdateForm, UserPasswordChangeForm
 from .models import Notification, ProfileComment, ProfileMedia, User, UserAward, UserProfile
-from .helpers import users
+from .helpers import authentication
+from .helpers import profiles
 from common import form_processing
 from users import tasks
-
+import users.forms as forms
 import logging
 
 logger = logging.getLogger(__name__)
@@ -33,7 +32,7 @@ class UserListView(ListView):
     template_name = 'users/user_list.html'
 
 def user_page(request: HttpRequest, slug: str):
-    profile: UserProfile = users.get_userprofile_or_404(slug)
+    profile: UserProfile = profiles.get_userprofile_or_404(slug)
 
     post_list = Blog.objects.filter(
         author=profile.user).order_by('-created_at')
@@ -44,7 +43,7 @@ def user_page(request: HttpRequest, slug: str):
         'profile': profile,
         'media_list': ProfileMedia.objects.filter(profile=profile, is_visible=True)[:3],
         'comments': ProfileComment.objects.filter(profile=profile),
-        'comment_form': ProfileCommentCreationForm(),
+        'comment_form': forms.ProfileCommentCreationForm(),
         # The current user is a subscriber of this user
         'request_user_is_subscribed': profile in request.user.profile.subscriptions.all(),
         'subscribers': subscribers[:3],
@@ -56,11 +55,11 @@ def user_page(request: HttpRequest, slug: str):
 
 def create_comment(request: HttpRequest, slug: str):
     if request.method != 'POST':
-        return HttpResponseNotAllowed()
+        return HttpResponseNotAllowed(['post'])
 
-    profile = users.get_userprofile_or_404(slug)
+    profile = profiles.get_userprofile_or_404(slug)
 
-    form = ProfileCommentCreationForm(request.POST)
+    form = forms.ProfileCommentCreationForm(request.POST)
 
     if form.is_valid():
         new_comment: ProfileComment = form.save(commit=False)
@@ -87,12 +86,12 @@ class UserAwardList(ListView):
 
     def get_queryset(self) -> QuerySet[Any]:
         # Get only the awards of the user that is being checked
-        user = users.get_userprofile_or_404(self.kwargs["slug"]).user
+        user = profiles.get_userprofile_or_404(self.kwargs["slug"]).user
         return UserAward.objects.filter(user=user)
 
     def get_context_data(self, **kwargs):
         new_context = super().get_context_data(**kwargs)
-        new_context['profile'] = users.get_userprofile_or_404(
+        new_context['profile'] = profiles.get_userprofile_or_404(
             self.kwargs["slug"])
         return new_context
 
@@ -100,7 +99,7 @@ class UserAwardList(ListView):
 def user_subscribe(request: HttpRequest, slug: str):
     """A view that is responsible for creating and deleting
     subscription instances on POST."""
-    profile = users.get_userprofile_or_404(slug)
+    profile = profiles.get_userprofile_or_404(slug)
 
     response = {
         'success': True,
@@ -122,7 +121,7 @@ def user_subscribe(request: HttpRequest, slug: str):
 
 def user_followings(request: HttpRequest, slug: str):
     """A view that is responsible for showing a subscription and subscriber lists on GET."""
-    profile = users.get_userprofile_or_404(slug)
+    profile = profiles.get_userprofile_or_404(slug)
 
     subscription_list = profile.subscriptions.filter()
     subscriber_list = profile.subscribers.filter()
@@ -141,13 +140,13 @@ class UserMediaList(ListView):
 
     def get_queryset(self) -> QuerySet[Any]:
         # Get only the visible media of the user that is being checked
-        profile = users.get_userprofile_or_404(
+        profile = profiles.get_userprofile_or_404(
             self.kwargs["slug"]).user.profile
         return ProfileMedia.objects.filter(profile=profile, is_visible=True)
 
     def get_context_data(self, **kwargs):
         new_context = super().get_context_data(**kwargs)
-        new_context['profile'] = users.get_userprofile_or_404(
+        new_context['profile'] = profiles.get_userprofile_or_404(
             self.kwargs["slug"])
         return new_context
 
@@ -159,15 +158,15 @@ class UserMediaDetail(DetailView):
 
 
 def user_media_upload(request: HttpRequest, slug: str):
-    profile = users.get_userprofile_or_404(slug)
+    profile = profiles.get_userprofile_or_404(slug)
 
     if request.user.profile != profile:
         return redirect(reverse("user_media_upload", args=(request.user.profile.slug,)))
 
-    form = UploadMediaForm
+    form = forms.UploadMediaForm
 
     if request.method == 'POST':
-        form = UploadMediaForm(request.POST, request.FILES)
+        form = forms.UploadMediaForm(request.POST, request.FILES)
         if form.is_valid():
             new_media = form.save(commit=False)
             new_media.profile = profile
@@ -177,7 +176,7 @@ def user_media_upload(request: HttpRequest, slug: str):
 
             return redirect(reverse('user_media_list', args=(slug,)))
     else:
-        form = UploadMediaForm
+        form = forms.UploadMediaForm
 
     context = {
         'page_title': 'Upload Your Picture',
@@ -188,7 +187,7 @@ def user_media_upload(request: HttpRequest, slug: str):
 
 
 def user_media_delete(request: HttpRequest, slug):
-    profile: UserProfile = users.get_userprofile_or_404(slug)
+    profile: UserProfile = profiles.get_userprofile_or_404(slug)
 
     media_list = profile.media_list.filter(is_visible=True)
 
@@ -268,10 +267,10 @@ def user_edit(request: HttpRequest, slug: str):
 
         if request.POST['updating'] == 'user':
             # Updating the User/UserProfile info
-            profile_form = ProfileUpdateForm(
+            profile_form = forms.ProfileUpdateForm(
                 request.POST, instance=request.user.profile)
-            user_form = UserUpdateForm(request.POST, instance=request.user)
-            password_change_form = UserPasswordChangeForm()
+            user_form = forms.UserUpdateForm(request.POST, instance=request.user)
+            password_change_form = forms.UserPasswordChangeForm()
 
             if profile_form.is_valid() and user_form.is_valid():
                 profile_form.save()
@@ -282,15 +281,15 @@ def user_edit(request: HttpRequest, slug: str):
 
         elif request.POST['updating'] == 'password':
             # Updating the password
-            password_change_form = UserPasswordChangeForm(
+            password_change_form = forms.UserPasswordChangeForm(
                 request.POST, instance=request.user)
 
             # Prepopulate the fields
-            profile_form = ProfileUpdateForm(initial={
+            profile_form = forms.ProfileUpdateForm(initial={
                 "bio": request.user.profile.bio,
                 "signing": request.user.profile.signing,
             })
-            user_form = UserUpdateForm(initial={
+            user_form = forms.UserUpdateForm(initial={
                 'username': request.user.username,
                 'email': request.user.email,
             })
@@ -303,15 +302,15 @@ def user_edit(request: HttpRequest, slug: str):
 
     else:
         # Prepopulate the fields
-        profile_form = ProfileUpdateForm(initial={
+        profile_form = forms.ProfileUpdateForm(initial={
             "bio": request.user.profile.bio,
             "signing": request.user.profile.signing,
         })
-        user_form = UserUpdateForm(initial={
+        user_form = forms.UserUpdateForm(initial={
             'username': request.user.username,
             'email': request.user.email,
         })
-        password_change_form = UserPasswordChangeForm()
+        password_change_form = forms.UserPasswordChangeForm()
 
     context = {'profile_form': profile_form, 'user_form': user_form,
                'password_change_form': password_change_form}
@@ -320,14 +319,14 @@ def user_edit(request: HttpRequest, slug: str):
 
 
 def refresh_pfp(request: HttpRequest, slug: str):
-    profile = users.get_userprofile_or_404(slug)
+    profile = profiles.get_userprofile_or_404(slug)
 
     if profile == request.user.profile:
         # Assure that the user is updating his own PFP
         # Is not necessary, as it is possible to just update the PFP of request.user.profile,
         # but for the sake of possible future modifications and clarity it is made this way.
         try:
-            users.update_pfp(profile=profile)
+            profiles.update_pfp(profile=profile)
             messages.success(
                 request, 'Your profile picture has been refreshed.')
         except Exception as exc:
@@ -355,23 +354,23 @@ def register_page(request: HttpRequest):
     context = {}
 
     if request.method == 'POST':
-        form = UserRegistrationForm(request.POST.dict())
+        form = forms.UserRegistrationForm(request.POST.dict())
         
-        restricter = users.AttemptRestricter(request, key_prefix='application',
+        restricter = authentication.AttemptRestricter(request, key_prefix='application',
                                              max_attempts=settings.APPLICATION_ATTEMPTS_MAX,
                                              timeout=settings.APPLICATION_RESTRICTION_TIMEOUT)
         
         # Check if the client has sent too many applications in the recent time
         if restricter.is_restricted():
             messages.info(request, "You have already sent too many applications. Please try again later.")
-            context['form'] = UserRegistrationForm(initial=form.data)
+            context['form'] = forms.UserRegistrationForm(initial=form.data)
 
             return render(request, 'users/logreg/register_page.html', context=context)
         
         if form.is_valid():
             # Save the User, the Application and Profile instances
             try:
-                user: User = users.register_user(form)
+                user: User = authentication.register_user(form)
                 tasks.send_registration_confirmation_email.delay(user.pk)
 
                 if settings.APPLICATIONS_APPROVE_AUTOMATICALLY:
@@ -391,7 +390,7 @@ def register_page(request: HttpRequest):
             return render(request, 'users/logreg/register_page_confirm.html', context=context)
 
     elif request.method == 'GET':
-        form = UserRegistrationForm()
+        form = forms.UserRegistrationForm()
 
     context['form'] = form
 
@@ -406,16 +405,16 @@ def login_page(request: HttpRequest):
     context = {}
 
     if request.method == 'POST':
-        form = UserAuthenticationForm(data=request.POST.dict())
+        form = forms.UserAuthenticationForm(data=request.POST.dict())
         
-        restricter = users.AttemptRestricter(request, key_prefix='login',
+        restricter = authentication.AttemptRestricter(request, key_prefix='login',
                                              max_attempts=settings.LOGIN_ATTEMPTS_MAX,
                                              timeout=settings.LOGIN_RESTRICTION_TIMEOUT)
         if restricter.is_restricted():
             # Show the error and stop validation. Django will not show validation error,
             # so no security risk is imposed.
             messages.error(request, form.error_messages['login_restricted'])
-            context['form'] = UserAuthenticationForm(initial=form.data)
+            context['form'] = forms.UserAuthenticationForm(initial=form.data)
 
             return render(request, 'users/logreg/login_page.html', context=context)
 
@@ -444,7 +443,7 @@ def login_page(request: HttpRequest):
                     f"into the {form.data.get('username')} account. Total login attempts recently: {attempt_count}")
 
     elif request.method == 'GET':
-        form = UserAuthenticationForm()
+        form = forms.UserAuthenticationForm()
 
     context['form'] = form
 
@@ -475,12 +474,12 @@ class PasswordReset(SuccessMessageMixin, PasswordResetView):
     success_url = '/'
     success_message = "The password reset email will be sent out to your mailbox shortly."
     
-    form_class = PasswordResetEmailForm
+    form_class = forms.PasswordResetEmailForm
     extra_email_context = {'settings': settings}
     
 
     def post(self, request, *args, **kwargs):
-        restricter = users.AttemptRestricter(request, 'password_reset',
+        restricter = authentication.AttemptRestricter(request, 'password_reset',
                                              max_attempts=settings.PASSWORD_RESET_ATTEMPTS_MAX,
                                              timeout=settings.PASSWORD_RESET_RESTRICTION_TIMEOUT,
                                              remember_attempts_for=3600*24)
@@ -497,6 +496,7 @@ class PasswordReset(SuccessMessageMixin, PasswordResetView):
         
         # Proceed further as usual
         return super().post(request, *args, **kwargs)
+
 
 class PasswordResetConfirm(SuccessMessageMixin, PasswordResetConfirmView):
     template_name = 'users/logreg/reset_password_confirmation.html'

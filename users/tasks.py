@@ -5,7 +5,7 @@ from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.models import User
 
 from users.models import UserProfile
-from users.helpers.users import update_pfp
+from users.helpers.profiles import update_pfp
 
 @shared_task
 def send_registration_confirmation_email(user_id: int):

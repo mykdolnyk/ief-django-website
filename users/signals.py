@@ -1,10 +1,10 @@
-from django.db.models.signals import pre_save, post_save, m2m_changed
+from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 
 from users.helpers import notifications
-from users.models import Notification, RegistrationApplication, UserProfile
+from users.models import RegistrationApplication
 from blogs.models import Blog
-from .helpers.users import approve_application, reject_application
+from .helpers.authentication import approve_application, reject_application
 
 
 @receiver(pre_save, sender=RegistrationApplication)
