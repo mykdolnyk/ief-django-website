@@ -31,7 +31,7 @@ class UserProfile(models.Model):
     
     @property
     def total_blog_likes(self):
-        like_count = self.user.blogs.aggregate(likes=models.Sum('likes'))['likes']
+        like_count = self.user.blogs.aggregate(likes=models.Count('likes'))['likes']
         return like_count or 0
 
     def __str__(self):
