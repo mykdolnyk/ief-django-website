@@ -12,11 +12,11 @@
         <ul style="list-style-type: None; display: flex; padding: 10px">
             <li><a href={% url "user_list" %}>IeF</a></li>
             {% if user.is_authenticated %}
-            <li>Hi, <a href={% url "user_page" user.id %}>{{ user.username }}!</a></li>
-            <li><a href={% url "logout_page" %}>Log Out</a></li> 
+                <li>Hi, <a href={% url "user_page" user.profile.slug %}>|{{ user.username }}!</a></li>
+                <li><a href={% url "logout_page" %}>Log Out</a></li> 
             {% else %}
-            <li><a href={% url "login_page" %}>Log In</a></li>
-            <li><a href={% url "register_page" %}>Register</a></li> 
+                <li><a href={% url "login_page" %}>Log In</a></li>
+                <li><a href={% url "register_page" %}>Register</a></li> 
             {% endif %}
         </ul>
     </header>

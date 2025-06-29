@@ -2,16 +2,22 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
+from users.helpers.mcuser import username_to_mc_uuid
 
 class UserProfile(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     bio = models.CharField('Bio', max_length=512, default='')
     signing = models.CharField('Signing', max_length=64, default='')
-    
-    mcuuid = models.UUIDField('Minecraft UUID')
+    mcuuid = models.UUIDField('Minecraft UUID', editable=False)
+    slug = models.SlugField(default='', null=False)
     
     def __str__(self):
-        return f'<{self.username} Profile>'
+        return f"{self.user.username}'s Profile"
+
+    def save(self, *args, **kwargs) -> None:
+        self.slug = str(self.user.username).lower()
+        self.mcuuid = username_to_mc_uuid(self.user.username)  # ? Implement caching as this stage
+        return super().save(*args, **kwargs)
 
 
 class ProfileComment(models.Model):
@@ -79,17 +85,20 @@ class RegistrationApplication(models.Model):
         models (SmallIntegerField): The application status
 
     """
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='application')
+    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, related_name='application')
     text = models.CharField(_("Text"), max_length=256)
     status = models.SmallIntegerField('Application status', default=0) # TODO: implement via models.TextChoices
     # 0: not reviewed, 1: approved, 2: denied
 
     class Meta:
-        verbose_name = _("")
-        verbose_name_plural = _("s")
+        verbose_name = _("Application")
+        verbose_name_plural = _("Applications")
 
     def __str__(self):
-        return self.name
+        if self.user:
+            return f"{self.user.username}'s Application"
+        else:
+            return "Deleted user's Application"
 
 
 

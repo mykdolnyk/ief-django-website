@@ -1,21 +1,37 @@
-from django.http import HttpRequest, HttpResponse
+from typing import Any
+from django.db.models.query import QuerySet
+from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from .forms import UserRegistrationForm, UserRegistrationFormOld
-from .models import RegistrationApplication, UserProfile, User
+from .forms import UserRegistrationForm
+from .models import User, UserProfile
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
-from .helpers import mcuser
+from django.views.generic.list import ListView
+from .helpers import users
 
 # Create your views here.
 
-def user_list(request: HttpRequest):
-    pass
+class UserListView(ListView):
+    model = User
+    template_name = 'users/user_list.html'
+    
+    def get_queryset(self) -> QuerySet[Any]:
+        # The queryset excludes users that are inactive or do not have a profile
+        queryset = super().get_queryset().filter(is_active=True,
+                                                 profile__isnull=False)
+        
+        return queryset
+    
 
-
-def user_page(request: HttpRequest, id: int):
-    pass
+def user_page(request: HttpRequest, slug: str):
+    try:
+        profile = UserProfile.objects.get(slug=slug.lower())
+    except UserProfile.DoesNotExist:
+        raise Http404()
+    
+    return HttpResponse(profile.user.username)
 
 
 def user_award_list(request: HttpRequest, id: int):
@@ -55,24 +71,11 @@ def register_page(request: HttpRequest):
         if form.is_valid():
             # Save the User, the Application and Profile instances
             try:
-                user: User = form.save() # Save the user from the form to the instance
-                user.is_active = False # Make the client inactive until the application is reviewed
-                user.save() # Save the user from the instance to the DB (required to get the PK)
-
-                RegistrationApplication.objects.create(
-                    user = user,
-                    text = form.cleaned_data['application'],
-                ).save()
-                
-                UserProfile.objects.create(
-                    user=user,
-                    mcuuid=mcuser.username_to_mc_uuid(user.username),
-                ).save()
+                user = users.register_user(form)
                 
             except Exception as exc:
-                # In case some error occures, the User instance should be deleted as it was
-                # already saved, but the registration failed
-                user.delete()
+                # TODO: Log the exception in to some file
+                print(exc)
                 form.add_error(field=None, error='Some unknown error occured. Please try again a bit later.')
             
     elif request.method == 'GET':
@@ -96,7 +99,7 @@ def login_page(request: HttpRequest):
             login(request, form.get_user())
         # else:
         #     # If User's application status is not 'reviewed', show the corresponind message:
-        #     if User.objects.get(username=form.cleaned_data['username']).application.get().status < 4:
+        #     if User.objects.get(username=form.cleaned_data['username']).application.status < 4:
         #         form.add_error(field=None, error=form.error_messages['inactive'])
             
 

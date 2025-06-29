@@ -1,0 +1,29 @@
+from django.contrib.auth.models import User
+from users.models import RegistrationApplication, UserProfile
+from .mcuser import username_to_mc_uuid
+
+
+def register_user(form_data) -> User:
+    """A function that takes form as an argument and registers the user. 
+    Returns the User instance."""
+    try:
+        user: User = form_data.save() # Save the user from the form to the instance
+        user.is_active = False # Make the client inactive until the application is reviewed
+        user.save() # Save the user from the instance to the DB (required to get the PK)
+
+        RegistrationApplication.objects.create(
+            user = user,
+            text = form_data.cleaned_data['application'],
+        ).save()
+        
+        UserProfile.objects.create(
+            user=user,
+        ).save()
+        
+    except Exception as exc:
+        # In case some error occures, the User instance should be deleted as it was
+        # already saved, but the registration failed
+        user.delete()
+        raise exc # Raise the same exception again for further processing
+
+    return user

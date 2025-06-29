@@ -70,8 +70,10 @@ class UserRegistrationForm(forms.ModelForm):
             raise forms.ValidationError(
                 "The username is already taken."
             )
+
+        mcuuid = mcuser.username_to_mc_uuid(data) # ? Implement caching as this stage
             
-        if not mcuser.username_to_mc_uuid(data):
+        if not mcuuid:
             raise forms.ValidationError(
                 "Such Minecraft user does not exist."
             )

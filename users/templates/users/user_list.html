@@ -1,0 +1,14 @@
+{% extends 'parts/base.html' %}
+
+{% block title %}User List{% endblock title %}
+
+{% block content %}
+    <h1>User List</h1>
+    <ul>
+        {% for user in user_list %}
+            <li><a href="{% url 'user_page' user.profile.slug %}">{{ user.username }}</a></li>
+        {% empty %}
+            There are no users yet...
+        {% endfor %}
+    </ul>
+{% endblock content %}
