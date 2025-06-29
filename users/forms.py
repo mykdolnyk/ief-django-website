@@ -1,9 +1,14 @@
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from typing import Any, Mapping
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UserChangeForm, UsernameField
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django import forms
+from django.core.files.base import File
+from django.db.models.base import Model
+from django.forms.utils import ErrorList
 
-from users.models import ProfileComment
+
+from users.models import ProfileComment, UserProfile
 from .helpers import mcuser
 
 
@@ -89,7 +94,7 @@ class UserRegistrationForm(forms.ModelForm):
         
         return data
     
-    def save(self, commit=False):
+    def save(self, commit=True):
         user = super().save(commit=False)
         user.set_password(self.cleaned_data["password1"])
         if commit:
@@ -109,3 +114,78 @@ class ProfileCommentCreationForm(forms.ModelForm):
             'text': forms.Textarea()
         }
         
+    
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ('bio', 'signing')
+        widgets = {
+            'bio': forms.Textarea(),
+            'signing': forms.Textarea()
+        }
+
+    
+class UserUpdateForm(forms.ModelForm):
+
+    password1 = forms.CharField(
+        label="Password",
+        widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}),
+        strip=False,
+        required=False
+    )
+    password2 = forms.CharField(
+        label="Password confirmation",
+        widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}),
+        strip=False,
+        required=False
+    )
+    
+    class Meta:
+        model = User
+        fields = ('username', 'email')
+        
+        help_texts = {
+            'username': None
+        }
+    
+    def clean_username(self):
+        data = self.cleaned_data['username']
+        if self.instance.username.lower() != data.lower():
+            raise forms.ValidationError('You can only change the casing of the username.\
+                                        Username itself cannot be changed.')
+            
+        return data
+    
+    def clean_password1(self):
+        # Check if anything was entered in the Password field. If not, then ignore. 
+        # If yes - use the clean method from the UserRegistrationForm form
+        data = self.cleaned_data["password1"]
+        if data:
+            return UserRegistrationForm.clean_password1(self)
+        else:
+            return data
+    
+    def clean_password2(self):
+        # Check if anything was entered in the Password confirmation field. If not, then ignore. 
+        # If yes - use the clean method from the UserRegistrationForm form
+        data = self.cleaned_data["password2"]
+        if data:
+            return UserRegistrationForm.clean_password2(self)
+        else:
+            return data
+
+    def save(self, commit=True):
+        user: User = super().save(commit=False)
+
+        # Apply the changes only in case if any information was entered, else don't update anything
+        if self.cleaned_data['password1'] and self.cleaned_data['password2']:
+            new_password = self.cleaned_data['password1']
+            user.set_password(new_password)
+
+
+        if commit:
+            user.save()
+            if hasattr(self, "save_m2m"):
+                self.save_m2m()
+                
+        return user

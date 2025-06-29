@@ -1,0 +1,18 @@
+{% extends 'parts/base.html' %}
+
+{% block title %}User Edit Page{% endblock title %}
+
+{% block content %}
+    <form action="" method="post">
+        {{ profile_form }}
+        {{ user_form }}
+        {% csrf_token %}
+        <input type="submit" value="Update">
+    </form>
+
+    <br>
+    <form action="{% url 'user_refresh_pfp' request.user.profile.slug %}" method="get">
+        <input type="submit" value="Refresh the profile picture">
+    </form>
+
+{% endblock content %}
