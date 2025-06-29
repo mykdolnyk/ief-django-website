@@ -2,6 +2,8 @@ from django.contrib.auth.models import User
 from django.http import Http404
 from users.models import RegistrationApplication, UserProfile
 from .mcuser import username_to_mc_uuid
+from users.helpers import mcuser
+from django.core.files.base import ContentFile
 
 
 def register_user(form_data) -> User:
@@ -28,6 +30,21 @@ def register_user(form_data) -> User:
         raise exc # Raise the same exception again for further processing
 
     return user
+
+
+def approve_user(user: User):
+    update_pfp(user.profile) # Create PFP
+    user.is_active = True
+    user.application.status = 1 # The application is approved
+
+    user.save()
+
+
+def update_pfp(profile: UserProfile):
+    pfp = mcuser.create_pfp(profile.mcuuid)
+    pfp = ContentFile(pfp)
+
+    profile.pfp.save(name=f'{profile.slug}.png', content=pfp)
 
 
 def get_userprofile_or_404(slug):

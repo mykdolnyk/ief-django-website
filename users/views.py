@@ -34,12 +34,7 @@ def user_page(request: HttpRequest, slug: str):
     context = {'profile': profile}
 
     # TODO: periodical PFP update (caching)
-    # Create PFP if it was not yet generated
-    if not profile.pfp:
-        pfp = mcuser.create_pfp(profile.mcuuid)
-        pfp = ContentFile(pfp)
 
-        profile.pfp.save(name=f'{profile.slug}.png', content=pfp)
         
     # Load Comments
     context['comments'] = ProfileComment.objects.filter(profile=profile)
@@ -156,6 +151,10 @@ def register_page(request: HttpRequest):
             # Save the User, the Application and Profile instances
             try:
                 user = users.register_user(form)
+                
+                if settings.DEBUG: # If Django Debug Mode is ON
+                    users.approve_user(user) # ! IS HERE FOR DEBUG PURPOSES, SHOULD BE REMOVED
+                    # Automatically approves the user
 
             except Exception as exc:
                 # TODO: Log the exception in to some file
