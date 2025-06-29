@@ -6,6 +6,8 @@ services:
       - .:/app
     depends_on:
       - redis
+    env_file:
+      - .env
     environment:
       - DJANGO_SETTINGS_MODULE=ief.settings
     ports:
@@ -18,6 +20,8 @@ services:
       - .:/app
     depends_on:
       - redis
+    env_file:
+      - .env
     environment:
       - DJANGO_SETTINGS_MODULE=ief.settings
 
@@ -28,7 +32,8 @@ services:
       - .:/app
     depends_on:
       - redis
-      - web
+    env_file:
+      - .env
     environment:
       - DJANGO_SETTINGS_MODULE=ief.settings
 

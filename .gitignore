@@ -1,9 +1,10 @@
-.pyc
+*.pyc
 __pycache__
 .devnotes
 .venv
 db.sqlite3
-media
+media/*
 .bootstrap
 .vscode
-logs
+*.log
+.env
