@@ -361,11 +361,12 @@ def register_page(request: HttpRequest):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST.dict())
         
-        # Check if the client has sent too many applications in the recent time
-        user_ip = users.get_ip_address(request)
-        application_restricted = cache.get(f'application_restricted:{user_ip}', default=False)
+        restricter = users.AttemptRestricter(request, key_prefix='application',
+                                             max_attempts=settings.APPLICATION_ATTEMPTS_MAX,
+                                             timeout=settings.APPLICATION_RESTRICTION_TIMEOUT)
         
-        if application_restricted:
+        # Check if the client has sent too many applications in the recent time
+        if restricter.is_restricted():
             messages.info(request, "You have already sent too many applications. Please try again later.")
             context['form'] = UserRegistrationForm(initial=form.data)
 
@@ -382,17 +383,9 @@ def register_page(request: HttpRequest):
                     user.application.save()  # But calling the `save` method does
                     
                 # Increase the number of sent applications
-                try:
-                    application_attempts = cache.incr(f'application_attempts:{user_ip}', 1)
-                except ValueError:
-                    cache.set(f'application_attempts:{user_ip}', 1, 3600*24)
-                    application_attempts = 1
-                
-                # Restrict ability to send applications for set period
-                if application_attempts % settings.APPLICATION_ATTEMPTS_MAX == 0:
-                    cache.set(f'application_restricted:{user_ip}', 
-                              value=True, 
-                              timeout=settings.APPLICATION_RESTRICTION_TIMEOUT)
+                restricter.increase_attempt_count()
+                # Restrict if needed
+                restricter.add_restriction_if_needed()
                                             
             except Exception as exc:
                 logger.critical(exc, exc_info=True)
@@ -418,13 +411,13 @@ def login_page(request: HttpRequest):
 
     if request.method == 'POST':
         form = UserAuthenticationForm(data=request.POST.dict())
-
-        # Check if the IP's access is restricted
-        user_ip = users.get_ip_address(request)
-        login_restricted: bool = cache.get(f'login_restricted:{user_ip}', False)
         
-        if login_restricted:
-            # Show the error and stop validation
+        restricter = users.AttemptRestricter(request, key_prefix='login',
+                                             max_attempts=settings.LOGIN_ATTEMPTS_MAX,
+                                             timeout=settings.LOGIN_RESTRICTION_TIMEOUT)
+        if restricter.is_restricted():
+            # Show the error and stop validation. Django will not show validation error,
+            # so no security risk is imposed.
             messages.error(request, form.error_messages['login_restricted'])
             context['form'] = UserAuthenticationForm(initial=form.data)
 
@@ -442,22 +435,16 @@ def login_page(request: HttpRequest):
                 form.add_error('', form.get_invalid_login_error())
             else:
                 login(request, user)
-                cache.delete(f"failed_login_attempts:{user_ip}")
                 next_page = request.GET.get('next')
                 return redirect(next_page or reverse('index_page'))
         else:
             # Get and increase the number of failed login attempts. Set it to 1 if it is the first one
-            try: 
-                failed_login_attempts = cache.incr(f"failed_login_attempts:{user_ip}", 1)
-            except ValueError:
-                cache.set(f"failed_login_attempts:{user_ip}", value=1, timeout=3600)
-                failed_login_attempts = 1
-
-            # Restrict login access every 10th attempt and log that
-            if (failed_login_attempts % settings.LOGIN_ATTEMPTS_MAX) == 0:
-                cache.set(f'login_restricted:{user_ip}', True, timeout=settings.LOGIN_RESTRICTION_TIMEOUT)
-                login_restriction_logger.info(f"The {user_ip} address was restricted trying to log " \
-                    f"into the {form.data.get('username')} account. Total login attempts recently: {failed_login_attempts}")
+            attempt_count = restricter.increase_attempt_count()
+            
+            # Restrict login access every Nth attempt and log that
+            if restricter.add_restriction_if_needed():
+                login_restriction_logger.info(f"The {restricter.user_ip} address was restricted trying to log " \
+                    f"into the {form.data.get('username')} account. Total login attempts recently: {attempt_count}")
 
     elif request.method == 'GET':
         form = UserAuthenticationForm()
@@ -491,6 +478,24 @@ class PasswordReset(SuccessMessageMixin, PasswordResetView):
     success_url = '/'
     success_message = "The password reset email will be sent out to your mailbox shortly."
 
+    def post(self, request, *args, **kwargs):
+        restricter = users.AttemptRestricter(request, 'password_reset',
+                                             max_attempts=settings.PASSWORD_RESET_ATTEMPTS_MAX,
+                                             timeout=settings.PASSWORD_RESET_RESTRICTION_TIMEOUT,
+                                             remember_attempts_for=3600*24)
+        
+        if restricter.is_restricted():
+            messages.info(request, "You requested too many password resets. Please try again later.")
+            # Process as the usual GET request futher
+            return super().get(request, *args, **kwargs)
+        
+        # Increases the attempt count no matter if the provided email is valid
+        restricter.increase_attempt_count()
+        # Restrict the next attempt if needed
+        restricter.add_restriction_if_needed()
+        
+        # Proceed further as usual
+        return super().post(request, *args, **kwargs)
 
 class PasswordResetConfirm(SuccessMessageMixin, PasswordResetConfirmView):
     template_name = 'users/logreg/reset_password_confirmation.html'
