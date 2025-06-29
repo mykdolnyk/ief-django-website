@@ -47,7 +47,7 @@ class Blog(models.Model):
         new_slug = slugify(self.title).replace('_', '-')
         
         # Check the number of duplicates
-        duplicates = Blog.objects.filter(slug=new_slug).count()
+        duplicates = Blog.objects.filter(title__iexact=self.title).count()
         if duplicates > 0:
             # If there is a duplicate, add the number to the slug
             new_slug += f'_{duplicates}'
