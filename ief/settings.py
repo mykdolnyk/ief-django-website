@@ -26,8 +26,9 @@ SECRET_KEY = 'django-insecure-3vey7zk&k*&m5a0!s3^y4^ukv!g06)(0rfj0@3z3z^q_d32!k$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
+SITE_URL = f'https://{ALLOWED_HOSTS[0]}/'
 
 # Application definition
 
@@ -66,7 +67,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'users.helpers.context_processors.notification_count'
+                'users.helpers.context_processors.notification_count',
+                'helpers.context_processors.project_settings',
             ],
         },
     },
@@ -140,6 +142,13 @@ MEDIA_URL = 'media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'ief.testing.ief@gmail.com'
+EMAIL_HOST_PASSWORD = 'pipl hlec agpv twbr' # TODO: environment variables
+EMAIL_PORT = 587
+DEFAULT_FROM_EMAIL = f'Igni et Ferro <{EMAIL_HOST_USER}>'
 
 LOGIN_PAGE_NAME = 'login_page'
 

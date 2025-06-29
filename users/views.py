@@ -1,57 +1,51 @@
 from typing import Any
 from django.db.models.query import QuerySet
-from django.forms import formset_factory
-from django.http import HttpResponseNotAllowed, HttpRequest
+from django.http import Http404, HttpResponseNotAllowed, HttpRequest, JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
-
-from blogs.models import Blog
-from .forms import ProfileCommentCreationForm, ProfileUpdateForm, UploadMediaForm, UserRegistrationForm, UserUpdateForm
-from .models import Notification, ProfileComment, ProfileMedia, User, UserAward, UserProfile
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.list import ListView
-from .helpers import users
-from helpers import form_processing 
+from django.views.generic import DetailView
+from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
+from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib import messages 
+from django.core.exceptions import ObjectDoesNotExist
+
+
 from django.conf import settings
+
+from blogs.models import Blog
+from .forms import ProfileCommentCreationForm, ProfileUpdateForm, UploadMediaForm, UserRegistrationForm, UserUpdateForm, UserPasswordChangeForm
+from .models import Notification, ProfileComment, ProfileMedia, User, UserAward, UserProfile
+from .helpers import users
+from helpers import form_processing, email
 
 
 class UserListView(LoginRequiredMixin, ListView):
     model = UserProfile
     template_name = 'users/user_list.html'
     login_url = settings.LOGIN_PAGE_NAME
-
-    def get_queryset(self) -> QuerySet[Any]:
-        # The queryset excludes users that are inactive or do not have a profile
-        queryset = super().get_queryset().filter(user__is_active=True)
-
-        return queryset
-
+    
 
 @login_required(login_url=settings.LOGIN_PAGE_NAME)
 def user_page(request: HttpRequest, slug: str):
     profile: UserProfile = users.get_userprofile_or_404(slug)
 
-    post_list = Blog.objects.filter(author=profile.user) 
-    total_likes = 0 # TODO: caching
+    post_list = Blog.objects.filter(author=profile.user).order_by('-created_at')
     
-    subscribers = UserProfile.objects.subscribers(profile)
-    
-    for blog in post_list:
-        total_likes += blog.likes.count()
+    subscribers = profile.subscribers.filter()
 
     context = {
         'profile': profile,
-        'media_list': ProfileMedia.objects.filter(profile=profile, is_visible=True), # TODO: periodical PFP update (caching)
+        'media_list': ProfileMedia.objects.filter(profile=profile, is_visible=True)[:3], # TODO: periodical PFP update (caching)
         'comments': ProfileComment.displayed_objects.filter(profile=profile),
         'comment_form': ProfileCommentCreationForm(),
         'request_user_is_subscribed': profile in request.user.profile.subscriptions.all(), # The current user is a subscriber of this user
         'subscribers': subscribers[:3],
         'post_list': post_list[:3],
-        'total_likes': total_likes,
-        'total_subscribers': subscribers.count()
         }
 
     return render(request, 'users/profile/user_page.html', context)
@@ -89,6 +83,11 @@ class UserAwardList(LoginRequiredMixin, ListView):
         # Get only the awards of the user that is being checked
         user = users.get_userprofile_or_404(self.kwargs["slug"]).user
         return UserAward.objects.filter(user=user)
+    
+    def get_context_data(self, **kwargs):
+        new_context = super().get_context_data(**kwargs)
+        new_context['profile'] = users.get_userprofile_or_404(self.kwargs["slug"])
+        return new_context
 
 
 @login_required(login_url=settings.LOGIN_PAGE_NAME)
@@ -96,28 +95,20 @@ def user_subscribe(request: HttpRequest, slug: str):
     """A view that is responsible for creating and deleting
     subscription instances on POST.
     """
-    if request.method != 'POST':
-        return HttpResponseNotAllowed(('GET',))
-    
     profile = users.get_userprofile_or_404(slug)
     
-    # A "subscribe" button was pressed:
-    if request.POST['action'] == 'post':
-        
-        if profile.user != request.user:
-            request.user.profile.subscriptions.add(profile)
-            return redirect(reverse('user_page', args=(slug,)))
-        
-        else:
-            return HttpResponseNotAllowed(('GET',))
-
-    # An "unsubscribe" button was pressed:
-    elif request.POST['action'] == 'delete':
-        
-        if profile.user != request.user:
-            request.user.profile.subscriptions.remove(profile)
+    response = {
+        'success': True,
+    }
     
-            return redirect(reverse('user_page', args=(slug,)))
+    if profile not in request.user.profile.subscriptions.all():
+        profile.subscribers.add(request.user.profile)
+        response['action'] = 'add'
+    else:
+        profile.subscribers.remove(request.user.profile)
+        response['action'] = 'remove'
+        
+    return JsonResponse(response)
 
 
 @login_required(login_url=settings.LOGIN_PAGE_NAME)
@@ -126,7 +117,7 @@ def user_followings(request: HttpRequest, slug: str):
     profile = users.get_userprofile_or_404(slug)
 
     subscription_list = profile.subscriptions.filter()
-    subscriber_list = UserProfile.objects.subscribers(profile)
+    subscriber_list = profile.subscribers.filter()
         
     context = {'profile': profile,
                 'subscriber_list': subscriber_list,
@@ -145,6 +136,18 @@ class UserMediaList(LoginRequiredMixin, ListView):
         # Get only the visible media of the user that is being checked
         profile = users.get_userprofile_or_404(self.kwargs["slug"]).user.profile
         return ProfileMedia.objects.filter(profile=profile, is_visible=True)
+        
+    def get_context_data(self, **kwargs):
+        new_context = super().get_context_data(**kwargs)
+        new_context['profile'] = users.get_userprofile_or_404(self.kwargs["slug"])
+        return new_context
+    
+
+class UserMediaDetail(LoginRequiredMixin, DetailView):
+    model = ProfileMedia
+    template_name = 'users/profile/user_profile_media_detail.html'
+    login_url = settings.LOGIN_PAGE_NAME
+    context_object_name = 'media'
 
 
 @login_required(login_url=settings.LOGIN_PAGE_NAME)
@@ -168,9 +171,11 @@ def user_media_upload(request: HttpRequest, slug: str):
         form = UploadMediaForm
 
     context = {
+        'page_title': 'Upload Your Picture',
         'form': form,
+        'form_action_url': reverse('user_media_upload', args=(slug,)),
     }
-    return render(request, 'users/profile/user_profile_media_upload.html', context=context)  
+    return render(request, 'parts/general_form_page.html', context=context)  
 
 
 @login_required(login_url=settings.LOGIN_PAGE_NAME)
@@ -198,10 +203,7 @@ def user_media_delete(request: HttpRequest, slug):
 
 
 @login_required(login_url=settings.LOGIN_PAGE_NAME)
-def user_notification_list(request: HttpRequest, slug):
-    if slug != request.user.profile.slug:
-        return redirect(reverse("user_notification_list", args=(request.user.profile.slug,)))
-
+def user_notification_list(request: HttpRequest):
     # Don't include deleted notifications
     notifications = request.user.notifications.filter(is_deleted=False)
 
@@ -237,11 +239,16 @@ class UserBlogList(LoginRequiredMixin, ListView):
     model = Blog
     template_name = 'users/profile/user_blogs.html'
     login_url = settings.LOGIN_PAGE_NAME
-    context_object_name = 'post_list'
+    context_object_name = 'blogs'
     
     def get_queryset(self) -> QuerySet[Any]:
-        user = get_object_or_404(User, profile__slug=self.kwargs['slug'])
-        return super().get_queryset().filter(author=user)
+        self.user = get_object_or_404(User, profile__slug=self.kwargs['slug'])
+        return super().get_queryset().filter(author=self.user).order_by('-created_at')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user'] = self.user
+        return context
     
 
 @login_required(login_url=settings.LOGIN_PAGE_NAME)
@@ -251,15 +258,37 @@ def user_edit(request: HttpRequest, slug: str):
         return redirect(reverse("user_edit", args=(request.user.profile.slug,)))
     
     if request.method == "POST":
-
-        profile_form = ProfileUpdateForm(request.POST, instance=request.user.profile)
-        user_form = UserUpdateForm(request.POST, instance=request.user)
         
-        if profile_form.is_valid():
-            profile_form.save()
+        if request.POST['updating'] == 'user':
+            # Updating the User/UserProfile info
+            profile_form = ProfileUpdateForm(request.POST, instance=request.user.profile)
+            user_form = UserUpdateForm(request.POST, instance=request.user)
+            password_change_form = UserPasswordChangeForm()
 
-        if user_form.is_valid():
-            user_form.save()
+            if profile_form.is_valid() and user_form.is_valid():
+                profile_form.save()
+                user_form.save()
+                messages.success(request, 'Your profile has been successfully updated.')
+                return redirect(reverse('user_page', args=(slug,)))
+
+        elif request.POST['updating'] == 'password':
+            # Updating the password
+            password_change_form = UserPasswordChangeForm(request.POST, instance=request.user)
+            
+            # Prepopulate the fields
+            profile_form = ProfileUpdateForm(initial={
+                "bio": request.user.profile.bio,
+                "signing": request.user.profile.signing,
+                })
+            user_form = UserUpdateForm(initial={
+                'username': request.user.username,
+                'email': request.user.email,
+                })
+            
+            if password_change_form.is_valid():
+                password_change_form.save()
+                messages.success(request, 'Your password has been successfully updated.')
+                return redirect(reverse('user_page', args=(slug,)))
         
     else:
         # Prepopulate the fields
@@ -271,8 +300,9 @@ def user_edit(request: HttpRequest, slug: str):
             'username': request.user.username,
             'email': request.user.email,
             })
+        password_change_form = UserPasswordChangeForm()
         
-    context = {'profile_form': profile_form, 'user_form': user_form}
+    context = {'profile_form': profile_form, 'user_form': user_form, 'password_change_form': password_change_form}
         
     return render(request, 'users/profile/user_edit_page.html', context)
 
@@ -285,8 +315,23 @@ def refresh_pfp(request: HttpRequest, slug: str):
         # Assure that the user is updating his own PFP
         # Is not necessary, as it is possible to just update the PFP of request.user.profile,
         # but for the sake of possible future modifications and clarity it is made this way.
-        users.update_pfp(profile=profile)
+        try:
+            users.update_pfp(profile=profile)
+            messages.success(request, 'Your profile picture has been refreshed.')
+        except Exception as exc: # TODO: log that somewhere
+            print(exc)
+            messages.error(request, 'An error occured when trying to refresh your profile picture. Please try again later.')
     return redirect(reverse('user_edit', args=[slug]))
+
+
+class TimelinePage(LoginRequiredMixin, ListView):
+    template_name = 'users/timeline.html'
+    context_object_name = 'blogs'
+    login_url = settings.LOGIN_PAGE_NAME
+    
+    def get_queryset(self):
+        return Blog.objects.filter(
+            author__profile__in=self.request.user.profile.subscriptions.all()).order_by('-created_at')[:50]
 
 
 def register_page(request: HttpRequest):
@@ -303,16 +348,19 @@ def register_page(request: HttpRequest):
             # Save the User, the Application and Profile instances
             try:
                 user = users.register_user(form)
+                email.send_registration_confirmation_email(user=user)
                 
                 if settings.DEBUG: # If Django Debug Mode is ON
-                    users.approve_user(user) # ! IS HERE FOR DEBUG PURPOSES, SHOULD BE REMOVED
-                    # Automatically approves the user
-
+                    # ! IS HERE FOR DEBUG PURPOSES, SHOULD BE REMOVED IN PRODUCTION
+                    # user.application.status = 1 # In this case, the signal doesn't approve the user automatically
+                    user.application.save() # But calling the `save` method does
             except Exception as exc:
                 # TODO: Log the exception in to some file
                 print(exc)
                 form.add_error(
                     field=None, error='Some unknown error occured. Please try again a bit later.')
+            
+            return render(request, 'users/logreg/register_page_confirm.html', context=context)
 
     elif request.method == 'GET':
         form = UserRegistrationForm()
@@ -332,11 +380,17 @@ def login_page(request: HttpRequest):
         form = AuthenticationForm(data=request.POST)
 
         if form.is_valid():
-            login(request, form.get_user())
-        # else:
-        #     # If User's application status is not 'reviewed', show the corresponind message:
-        #     if User.objects.get(username=form.cleaned_data['username']).application.status < 4:
-        #         form.add_error(field=None, error=form.error_messages['inactive'])
+            user: User = form.get_user()
+            
+            try:
+                # Prevent users without a profile from logging in using
+                # the default login page (like superusers created via console line)
+                user.profile
+            except ObjectDoesNotExist:
+                form.add_error('', form.get_invalid_login_error())
+            else:      
+                login(request, user)
+                return redirect(reverse('index_page'))
 
     elif request.method == 'GET':
         form = AuthenticationForm()
@@ -359,3 +413,26 @@ def logout_page(request: HttpRequest):
             return redirect(reverse('user_page', args=(request.user.profile.slug,)))
 
     return render(request, 'users/logreg/logout_page.html', context=context)
+
+
+class PasswordReset(SuccessMessageMixin, PasswordResetView):
+    template_name = 'users/logreg/reset_password_page.html'
+    subject_template_name = 'email/reset_password_subject.html'
+    
+    html_email_template_name = 'email/reset_password_email.html'
+    email_template_name = 'email/reset_password_email.html'
+    
+    success_url = '/'
+    success_message = "The password reset email will be sent out to your mailbox shortly."
+
+
+class PasswordResetConfirm(SuccessMessageMixin, PasswordResetConfirmView):
+    template_name = 'users/logreg/reset_password_confirmation.html'
+    success_url = '/'
+    success_message = "The password has been successfully reset! Feel free to Log In now."
+    
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect(reverse('logout_page'))
+        
+        return super().dispatch(request, *args, **kwargs)

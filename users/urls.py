@@ -9,8 +9,8 @@ urlpatterns = [
     path("<slug:slug>/awards/", views.UserAwardList.as_view(), name="user_award_list"),
     path("<slug:slug>/followings/", views.user_followings, name="user_followings"),
     path("<slug:slug>/media/", views.UserMediaList.as_view(), name="user_media_list"),
+    path("<slug:slug>/media/<int:pk>/", views.UserMediaDetail.as_view(), name="user_media_detail"),
     path("<slug:slug>/posts/", views.UserBlogList.as_view(), name="user_blog_list"),
-    path("<slug:slug>/notifications/", views.user_notification_list, name="user_notification_list"),
     
     path("<slug:slug>/subscribe/", views.user_subscribe, name="user_subscribe"),
     path("<slug:slug>/create_comment/", views.create_comment, name="user_create_comment"),

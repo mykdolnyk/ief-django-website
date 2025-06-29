@@ -4,20 +4,27 @@ import users.views as userviews
 import blogs.views as blogviews
 from django.conf.urls.static import static
 from django.conf import settings
+from django.views.generic import TemplateView
 
 
 urlpatterns = [
+    path('', blogviews.index_page, name='index_page'),
     path('admin/', admin.site.urls),
     path('user/', include('users.urls')),
     path('blog/', include('blogs.urls')),
+    path('media/', blogviews.AllMediaList.as_view(), name='all_media_list'),
+    path('media/<int:pk>/', userviews.UserMediaDetail.as_view(), name='media_detail'),
+    path('timeline/', userviews.TimelinePage.as_view(), name='user_timeline'),
     path("notifications/", userviews.user_notification_list, name="user_notification_list"),
-    
-    
-    path('', blogviews.index_page, name='index_page'),
     
     path('login/', userviews.login_page, name=settings.LOGIN_PAGE_NAME),
     path('register/', userviews.register_page, name='register_page'),
     path('logout/', userviews.logout_page, name='logout_page'),
+    path('reset_password/', userviews.PasswordReset.as_view(), name='reset_password'),
+    path('reset_password_confirm/<uidb64>/<token>/', userviews.PasswordResetConfirm.as_view(), name='reset_password_confirm'),
+
+    path('about/', blogviews.AboutPage.as_view(), name='about_page'),
+    path('legal/', TemplateView.as_view(template_name='blogs/legal.html'), name='legal_page'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
@@ -25,3 +32,8 @@ urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += [
     path("ckeditor5/", include('django_ckeditor_5.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+handler404 = 'blogs.views.handle_404'
+handler500 = 'blogs.views.handle_500'
+handler403 = 'blogs.views.handle_403'
+handler400 = 'blogs.views.handle_400'
