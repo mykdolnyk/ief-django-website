@@ -115,29 +115,6 @@ def user_followings(request: HttpRequest, slug: str):
 
     return render(request, 'users/profile/user_followings.html', context=context)
 
-# def user_subscription_list(request: HttpRequest, slug: str):
-#     """A view that is responsible for showing a subscription list on GET."""
-#     profile = users.get_userprofile_or_404(slug)
-
-#     subscription_list = profile.subscriptions.filter()
-        
-#     context = {'profile': profile,
-#                 'subscription_list': subscription_list}
-
-#     return render(request, 'users/profile/user_subscription_list.html', context=context)
-
-
-# def user_subscriber_list(request: HttpRequest, slug: str):
-#     """A view that is responsible for showing a subscriber list on GET."""
-#     profile = users.get_userprofile_or_404(slug)
-    
-#     subscriber_list = UserProfile.objects.filter(subscriptions__id=profile.pk)
-        
-#     context = {'profile': profile,
-#                 'subscriber_list': subscriber_list}
-
-#     return render(request, 'users/profile/user_subscriber_list.html', context=context)
-
 
 def user_media_list(request: HttpRequest, slug: str):
     profile = users.get_userprofile_or_404(slug)
