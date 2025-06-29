@@ -174,12 +174,10 @@ class AllMediaList(ListView):
     model = ProfileMedia
     context_object_name = 'media_list'
     template_name = 'blogs/all_profile_media_list.html'
-    login_url = settings.LOGIN_PAGE_NAME
 
 
 class AboutPage(TemplateView):
     template_name = 'blogs/about.html'
-    login_url = settings.LOGIN_PAGE_NAME
     
 # ------------------ HTTP Error Handlers ------------------
 

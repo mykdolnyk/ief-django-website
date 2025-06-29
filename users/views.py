@@ -31,8 +31,6 @@ login_restriction_logger = logging.getLogger(__name__ + '.login_page')
 class UserListView(ListView):
     model = UserProfile
     template_name = 'users/user_list.html'
-    login_url = settings.LOGIN_PAGE_NAME
-
 
 def user_page(request: HttpRequest, slug: str):
     profile: UserProfile = users.get_userprofile_or_404(slug)
@@ -86,7 +84,6 @@ class UserAwardList(ListView):
 
     context_object_name = 'awards'
     template_name = 'users/profile/user_awards.html'
-    login_url = settings.LOGIN_PAGE_NAME
 
     def get_queryset(self) -> QuerySet[Any]:
         # Get only the awards of the user that is being checked
@@ -140,7 +137,6 @@ def user_followings(request: HttpRequest, slug: str):
 class UserMediaList(ListView):
     model = ProfileMedia
     template_name = 'users/profile/user_profile_media_list.html'
-    login_url = settings.LOGIN_PAGE_NAME
     context_object_name = 'media_list'
 
     def get_queryset(self) -> QuerySet[Any]:
@@ -159,7 +155,6 @@ class UserMediaList(ListView):
 class UserMediaDetail(DetailView):
     model = ProfileMedia
     template_name = 'users/profile/user_profile_media_detail.html'
-    login_url = settings.LOGIN_PAGE_NAME
     context_object_name = 'media'
 
 
@@ -252,7 +247,6 @@ def user_notification_list(request: HttpRequest):
 class UserBlogList(ListView):
     model = Blog
     template_name = 'users/profile/user_blogs.html'
-    login_url = settings.LOGIN_PAGE_NAME
     context_object_name = 'blogs'
 
     def get_queryset(self) -> QuerySet[Any]:
@@ -346,7 +340,6 @@ def refresh_pfp(request: HttpRequest, slug: str):
 class TimelinePage(ListView):
     template_name = 'users/timeline.html'
     context_object_name = 'blogs'
-    login_url = settings.LOGIN_PAGE_NAME
 
     def get_queryset(self):
         return Blog.objects.filter(
