@@ -10,13 +10,14 @@ from common.models import AbstractComment
 
 class Section(models.Model):
     name = models.CharField(_("Name"), max_length=32)
-    slug = models.SlugField(default='', null=True)
+    slug = models.SlugField(default='', blank=True)
     
     def __str__(self):
         return self.name
     
     def save(self, *args, **kwargs) -> None:
-        self.slug = python_slufigy(self.name)
+        if not self.slug:
+            self.slug = python_slufigy(self.name)
         return super().save(*args, **kwargs)
 
 
