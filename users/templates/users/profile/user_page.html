@@ -6,6 +6,9 @@
 {% block content %}
     <h1>{{ profile.user.username }}</h1>
     <img src="{{ profile.pfp.url }}" alt="{{ profile.user.username }} Profile Picture" style="border: 1px solid black; width: 120px; image-rendering: pixelated;">
+    <h2>Total likes: <strong>{{ total_likes }}</strong></h2>
+    <h2>Total subscribers: <strong>{{ total_subscribers }}</strong></h2>
+    
     <h3>My Bio:</h3> 
     <p>{{ profile.bio }}</p>
 
@@ -39,12 +42,22 @@
         {% endfor %}
     </ul>
 
-
+    <h3><a href="{% url 'user_blog_list' profile.user.profile.slug %}">My Posts:</a></h3>
+    {% for post in post_list %}
+        <ul>
+            <a href={% url 'blog_page' post.section.slug post.slug %}><li>{{ post.title }}</li></a>
+        </ul>
+    {% empty %}
+        None yet...
+    {% endfor %}
 
     <h3><a href="{% url 'user_award_list' profile.user.profile.slug %}">My Awards:</a></h3>
     {% for user_award in profile.user.awards.filter %}
         <ul>
-            <li>{{ user_award.type.name }}</li>
+            <li>
+                <img src="{{ user_award.type.picture.url }}" alt="{{user_award.type.description}}" style="height: 16px;">
+                {{ user_award.type.name }}
+            </li>
         </ul>
     {% empty %}
         None yet...

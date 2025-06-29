@@ -2,8 +2,10 @@ from typing import Any
 from django.db.models.query import QuerySet
 from django.forms import formset_factory
 from django.http import HttpResponseNotAllowed, HttpRequest
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
+
+from blogs.models import Blog
 from .forms import ProfileCommentCreationForm, ProfileUpdateForm, UploadMediaForm, UserRegistrationForm, UserUpdateForm
 from .models import Notification, ProfileComment, ProfileMedia, User, UserAward, UserProfile
 from django.contrib.auth import login, logout, authenticate
@@ -30,7 +32,15 @@ class UserListView(LoginRequiredMixin, ListView):
 
 @login_required(login_url=settings.LOGIN_PAGE_NAME)
 def user_page(request: HttpRequest, slug: str):
-    profile = users.get_userprofile_or_404(slug)
+    profile: UserProfile = users.get_userprofile_or_404(slug)
+
+    post_list = Blog.objects.filter(author=profile.user) 
+    total_likes = 0 # TODO: caching
+    
+    subscribers = UserProfile.objects.subscribers(profile)
+    
+    for blog in post_list:
+        total_likes += blog.likes.count()
 
     context = {
         'profile': profile,
@@ -38,7 +48,10 @@ def user_page(request: HttpRequest, slug: str):
         'comments': ProfileComment.displayed_objects.filter(profile=profile),
         'comment_form': ProfileCommentCreationForm(),
         'request_user_is_subscribed': profile in request.user.profile.subscriptions.all(), # The current user is a subscriber of this user
-        'subscribers': UserProfile.objects.subscribers(profile)[:3]
+        'subscribers': subscribers[:3],
+        'post_list': post_list[:3],
+        'total_likes': total_likes,
+        'total_subscribers': subscribers.count()
         }
 
     return render(request, 'users/profile/user_page.html', context)
@@ -220,15 +233,15 @@ def user_notification_list(request: HttpRequest, slug):
     return render(request, "users/notifications/user_notification_list.html", context)
 
 
-@login_required(login_url=settings.LOGIN_PAGE_NAME)
-def user_post_list(request: HttpRequest, slug: str):
-    profile = users.get_userprofile_or_404(slug)
-
-    pass
-class UserPostList(LoginRequiredMixin, ListView):
-    model = ...
-    template_name = 'users/profile/user_awards.html'
+class UserBlogList(LoginRequiredMixin, ListView):
+    model = Blog
+    template_name = 'users/profile/user_blogs.html'
     login_url = settings.LOGIN_PAGE_NAME
+    context_object_name = 'post_list'
+    
+    def get_queryset(self) -> QuerySet[Any]:
+        user = get_object_or_404(User, profile__slug=self.kwargs['slug'])
+        return super().get_queryset().filter(author=user)
     
 
 @login_required(login_url=settings.LOGIN_PAGE_NAME)

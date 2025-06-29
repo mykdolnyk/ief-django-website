@@ -1,0 +1,14 @@
+{% extends 'parts/base.html' %}
+
+{% block title %}{{ profile.user.username }} Posts{% endblock title %}
+
+
+{% block content %}
+<h1>Posts</h1>
+<ul>
+    {% for post in post_list %}
+        <a href={% url 'blog_page' post.section.slug post.slug %}><li>{{post.title}}</li></a>
+    {% endfor %}
+</ul>
+
+{% endblock content %}
