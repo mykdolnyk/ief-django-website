@@ -22,8 +22,7 @@ class Section(models.Model):
 
 class Blog(models.Model):
     title = models.CharField(_("Title"), max_length=64)
-    # text = models.CharField(_("Text"), max_length=2048)
-    slug = models.SlugField(default='')
+    slug = models.SlugField(default='', max_length=64)
     text = django_ckeditor_5.fields.CKEditor5Field(_("Text"), max_length=2048, config_name='extends')    
     section = models.ForeignKey(Section, verbose_name=_("Section"), on_delete=models.CASCADE)
     author = models.ForeignKey(User, verbose_name=_("Author"), on_delete=models.SET_NULL, null=True, related_name='blogs')

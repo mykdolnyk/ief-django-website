@@ -6,10 +6,9 @@ services:
       - .:/app
     depends_on:
       - redis
+      - db
     env_file:
       - .env
-    environment:
-      - DJANGO_SETTINGS_MODULE=ief.settings
     ports:
       - "8000:8000"
 
@@ -22,8 +21,6 @@ services:
       - redis
     env_file:
       - .env
-    environment:
-      - DJANGO_SETTINGS_MODULE=ief.settings
 
   celery-beat:
     build: .
@@ -32,11 +29,29 @@ services:
       - .:/app
     depends_on:
       - redis
+      - db
     env_file:
       - .env
-    environment:
-      - DJANGO_SETTINGS_MODULE=ief.settings
 
   redis:
-    image: redis
+    image: redis:8
     
+  db:
+  # Can be used for testing. Should be disabled for hosted DBs.
+    image: postgres:15
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_is_ready -U $POSTGRES_USER"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  postgres_data:

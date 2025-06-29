@@ -77,7 +77,7 @@ class UserAward(models.Model):
 
 class Notification(models.Model):
     user = models.ForeignKey(User, related_name='notifications', on_delete=models.CASCADE)
-    text = models.CharField(_("Text"), max_length=128)
+    text = models.CharField(_("Text"), max_length=512)
     is_seen = models.BooleanField(_("Is seen"), default=False)
     is_deleted = models.BooleanField(_("Is deleted"), default=False)
     created_at = models.DateTimeField(auto_now_add=True)
