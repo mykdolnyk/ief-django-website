@@ -70,6 +70,14 @@ class UserRegistrationForm(forms.ModelForm):
             data = ''
 
         return data
+    
+    def clean_email(self):
+        data = self.cleaned_data['email']
+        if User.objects.filter(email=data).exists():
+            raise forms.ValidationError(
+                "The email address is already taken."
+            )
+        return data
 
     def save(self, commit=True):
         user = super().save(commit=False)
