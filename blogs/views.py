@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 import random
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 
 from blogs.forms import BlogCommentCreationForm, BlogEditForm
@@ -181,6 +182,7 @@ class AboutPage(TemplateView):
     
 # ------------------ HTTP Error Handlers ------------------
 
+@login_required
 def handle_404(request: HttpRequest, exception=None):
     context = {
         'exception': exception,
@@ -197,6 +199,7 @@ def handle_500(request: HttpRequest, exception=None):
     }
     return render(request, 'general/error_page.html', context=context, status=context['status'])
 
+@login_required
 def handle_403(request: HttpRequest, exception=None):
     context = {
         'exception': exception,
@@ -205,6 +208,7 @@ def handle_403(request: HttpRequest, exception=None):
     }
     return render(request, 'general/error_page.html', context=context, status=context['status'])
 
+@login_required
 def handle_400(request: HttpRequest, exception=None):
     context = {
         'exception': exception,
