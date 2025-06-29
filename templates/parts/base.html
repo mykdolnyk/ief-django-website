@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block full_title %}{% block title %}Home{% endblock title %} - Igni et Ferro{% endblock full_title %}</title>
+</head>
+
+<header>
+<body>
+    <header>
+        <ul style="list-style-type: None; display: flex; padding: 10px">
+            <li><a href={% url "user_list" %}>IeF</a></li>
+            {% if user.is_authenticated %}
+            <li>Hi, <a href={% url "user_page" user.id %}>{{ user.username }}!</a></li>
+            <li><a href={% url "logout_page" %}>Log Out</a></li> 
+            {% else %}
+            <li><a href={% url "login_page" %}>Log In</a></li>
+            <li><a href={% url "register_page" %}>Register</a></li> 
+            {% endif %}
+        </ul>
+    </header>
+    {% block content %}
+    
+    {% endblock content %}    
+</body>
+</html>

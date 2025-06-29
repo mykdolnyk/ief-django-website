@@ -1,0 +1,18 @@
+{% extends "parts/base.html" %}
+
+{% block title %}Register{% endblock title %}
+
+{% block content %}
+    <h1>Registration page</h1>
+    {% if not form.errors and request.method == 'POST' %}
+        <hr>
+        Your application has been properly sent! Wait for an email from us where we will tell you if you can log into your account.
+    {% endif %}
+    <hr>
+        <form method='post'>
+            {% csrf_token %}
+            {{ form }}
+            <input type=submit>
+        </form>
+        
+{% endblock content %}

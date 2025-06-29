@@ -1,0 +1,20 @@
+{% extends "parts/base.html" %}
+
+{% block title %}Logout{% endblock title %}
+
+{% block content %}
+    <h1>Logout page</h1>
+    <hr>
+    <h2>Are you sure you want to log out?</h2>
+        <form method='post'>
+            {% csrf_token %}
+            {% comment %} <input type=hidden value='yes' name='choice'> {% endcomment %}
+            <input type=submit value='Yes' name='yes'>
+            <input type=submit value='No, take me back!' name='no'>
+        </form>
+    <hr>
+        is authenticated: {{ user.is_authenticated }}, {{ user.username }}
+        <br>
+        {{ appl }}
+    <hr>
+{% endblock content %}
