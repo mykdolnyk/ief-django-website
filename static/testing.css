@@ -1,0 +1,23 @@
+
+.header-list,
+.header-list-left,
+.header-list-right{
+    list-style-type: none;
+    display: flex;
+}
+
+.header-list{
+    justify-content: space-between;
+    padding-left: 5px;
+}
+ 
+.header-list li a{
+    padding-right: 10px;
+
+    font-family: "Inter", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+
+    text-decoration: none;
+    
+}

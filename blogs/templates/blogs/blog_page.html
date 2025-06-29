@@ -1,0 +1,23 @@
+{% extends 'parts/base.html' %}
+
+{% block title %}{{ blog.title }} Blog{% endblock title %}
+
+{% block content %}
+    <h1>{{ blog.title }}</h1>
+    <h2>by {{ blog.author.username }}, on {{ blog.created_at|date:"E d, Y" }}</h2>
+    <h3>Likes: {{ blog.likes }} | <a href="">Like</a></h3>
+
+    <hr>
+    <div class='ck-content'>
+        {{ blog.text|safe }}
+    </div>
+
+    <hr>
+
+    <h2>Comments:</h2>
+    {% for comment in comments %}
+        <p>a comment!</p>
+    {% empty %}
+        <h3>None yet...</h3>
+    {% endfor %}
+{% endblock content %}

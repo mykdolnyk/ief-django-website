@@ -1,23 +1,51 @@
+from time import strftime
+from typing import Iterable
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
-
+import django_ckeditor_5.fields
+from django.utils.text import slugify
 # Create your models here.
 
 
 class Section(models.Model):
     name = models.CharField(_("Name"), max_length=32)
+    slug = models.SlugField(default='', null=True)
     
     def __str__(self):
         return self.name
+    
+    def save(self, *args, **kwargs) -> None:
+        self.slug = slugify(self.name)
+        return super().save(*args, **kwargs)
 
 
 class Blog(models.Model):
     title = models.CharField(_("Title"), max_length=64)
-    text = models.CharField(_("Text"), max_length=2048)
+    # text = models.CharField(_("Text"), max_length=2048)
+    slug = models.SlugField(default='')
+    text = django_ckeditor_5.fields.CKEditor5Field(_("Text"), max_length=2048, config_name='extends')    
     section = models.ForeignKey(Section, verbose_name=_("Section"), on_delete=models.CASCADE)
     author = models.ForeignKey(User, verbose_name=_("Author"), on_delete=models.CASCADE)
-    likes = models.IntegerField(_("Like count"))
+    likes = models.IntegerField(_("Like count"), default=0)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def save(self, *args, **kwargs) -> None:
+        # Create a slug: first, slugify the title, then
+        # replace _ with -. It is needed to prevent creating
+        # duplicated slugs. For example: first create "test_1"
+        # title, and then create 2 "test" titles.
+        new_slug = slugify(self.title).replace('_', '-')
+        
+        # Check the number of duplicates
+        duplicates = Blog.objects.filter(slug=new_slug).count()
+        if duplicates > 0:
+            # If there is a duplicate, add the number to the slug
+            new_slug += f'_{duplicates}'
+        self.slug = new_slug
+        return super().save(*args, **kwargs)
     
     
 class Tag(models.Model):

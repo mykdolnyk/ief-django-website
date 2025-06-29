@@ -1,0 +1,22 @@
+{% extends 'parts/base.html' %}
+
+{% block title %}Blogs{% endblock title %}
+
+{% block content %}
+<h1>Blogs</h1>
+
+<h2>Categories</h2>
+<ul>
+    {% for section in sections %}
+        <li><a href="{% url 'blog_section' section.slug %}">{{ section.name }}</a></li>
+    {% endfor %}
+</ul>
+
+<h2>Blogs</h2>
+<ul>
+    {% for blog in blogs %}
+        <li><a href="{% url 'blog_page' blog.section.slug blog.slug %}">{{ blog.title }}</a></li>
+    {% endfor %}
+</ul>
+
+{% endblock content %}
