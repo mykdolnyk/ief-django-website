@@ -2,6 +2,8 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django import forms
+
+from users.models import ProfileComment
 from .helpers import mcuser
 
 
@@ -95,3 +97,15 @@ class UserRegistrationForm(forms.ModelForm):
             if hasattr(self, "save_m2m"):
                 self.save_m2m()
         return user
+
+
+class ProfileCommentCreationForm(forms.ModelForm):
+    action = forms.CharField(widget=forms.HiddenInput(), initial='create')
+    
+    class Meta:
+        model = ProfileComment
+        fields = ("text",)
+        widgets = {
+            'text': forms.Textarea()
+        }
+        

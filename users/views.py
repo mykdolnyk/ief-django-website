@@ -3,7 +3,7 @@ from django.db.models.query import QuerySet
 from django.http import Http404, HttpResponseNotAllowed, HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from .forms import UserRegistrationForm
+from .forms import ProfileCommentCreationForm, UserRegistrationForm
 from .models import ProfileComment, User, UserProfile
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
@@ -36,13 +36,37 @@ def user_page(request: HttpRequest, slug: str):
     # TODO: periodical PFP update (caching)
 
         
-    # Load Comments
-    context['comments'] = ProfileComment.objects.filter(profile=profile)
+    # Load existing comments
+    context['comments'] = ProfileComment.objects.filter(profile=profile, is_visible=True).order_by('-created_at').all()
+    # Load comment creation form
+    context['comment_form'] = ProfileCommentCreationForm()
     
     context['request_user_is_subscribed'] = profile in request.user.profile.subscriptions.all() # The current user is a subscriber of this user
     context['subscribers'] = UserProfile.objects.subscribers(profile)[:3]
 
     return render(request, 'users/profile/user_page.html', context)
+
+
+@login_required(login_url=settings.LOGIN_PAGE_NAME)
+def create_comment(request: HttpRequest, slug: str):
+    if request.method != 'POST':   
+        return HttpResponseNotAllowed()
+
+    profile = users.get_userprofile_or_404(slug)
+
+    form = ProfileCommentCreationForm(request.POST)
+    
+    if form.is_valid():
+        new_comment: ProfileComment = form.save(commit=False)
+        
+        
+        new_comment.profile = profile # The comment is created on the profile that is was written on
+        new_comment.is_visible = True # It is set to be visible
+        new_comment.owner = request.user # The owner of the comment is the request user
+
+        new_comment.save()
+        
+    return redirect(reverse('user_page', args=(slug,)))
 
 
 def user_award_list(request: HttpRequest, slug: str):

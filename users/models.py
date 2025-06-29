@@ -41,15 +41,20 @@ class UserProfile(models.Model):
 
 class ProfileComment(models.Model):
     profile = models.ForeignKey(UserProfile, verbose_name='UserProfile', on_delete=models.SET_NULL, null=True)
+    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     text = models.CharField(max_length=512)
     is_visible = models.BooleanField(default=False)
     
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
     def __str__(self):
-        return f'<{self.profile.username} Comment: {'not' if self.is_visible else ''} visible>'
+        return f'<{self.profile.user.username} Comment: {'not' if self.is_visible else ''} visible>'
     
     
 class ProfileMedia(models.Model):
-    profile = models.ForeignKey(UserProfile, verbose_name='User Profile', related_name='media_list',  on_delete=models.SET_NULL, null=True)
+    profile = models.ForeignKey(UserProfile, verbose_name='User Profile', related_name='media_list', on_delete=models.SET_NULL, null=True)
     image = models.ImageField('Profile Image', upload_to="users/profile_media/")
     title = models.CharField('Profile Media Title', max_length=32, null=True)
     type = models.SmallIntegerField('Media Type', default=0) # TODO: implement via models.TextChoices
@@ -117,7 +122,3 @@ class RegistrationApplication(models.Model):
             return f"{self.user.username}'s Application"
         else:
             return "Deleted user's Application"
-
-
-
-    
