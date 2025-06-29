@@ -189,11 +189,6 @@ LOGGING = {
             'level': "INFO",
             'propagate': False,
         },
-        'django.request': {
-            'handlers': ['console', 'error_file'],
-            'level': 'ERROR',
-            'propagate': False,
-    },
     },
     
     'root': {
@@ -203,6 +198,12 @@ LOGGING = {
         
 }
 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://redis:6379",
+    }
+}
 
 ############## CKEDITOR SETTINGS ##############
 

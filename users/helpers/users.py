@@ -6,6 +6,7 @@ from users.models import RegistrationApplication, UserProfile
 from users.helpers import mcuser
 from django.core.files.base import ContentFile
 from .awards import grant_award
+from django.core.cache import cache
 
 logger = logging.getLogger(__name__ + '.approve_application')
 
@@ -59,12 +60,20 @@ def reject_application(user: User):
     user.application.was_ever_reviewed = True
 
 
-def update_pfp(profile: UserProfile):
-    # TODO: periodical PFP update (caching)
+def update_pfp(profile: UserProfile, skip_rate_limit=False):
+    # TODO: periodical PFP update
+    
+    if not skip_rate_limit:
+        # Check if the PFP was created and updated before...
+        pfp_recently_updated = cache.has_key(f"pfp_recently_updated:{profile.user.username}")
+        if pfp_recently_updated:
+            return None # do nothing
+    
     pfp = mcuser.create_pfp(profile.mcuuid)
     pfp = ContentFile(pfp)
-
     profile.pfp.save(name=f'{profile.slug}.png', content=pfp)
+    
+    cache.set(f"pfp_recently_updated:{profile.user.username}", True, 60) # Record the PFP Update
 
 
 def get_userprofile_or_404(slug):
