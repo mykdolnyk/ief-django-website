@@ -1,4 +1,5 @@
 from django import forms
+import helpers.forms
 from . import models
 from django_ckeditor_5.fields import CKEditor5Widget
 
@@ -19,7 +20,7 @@ class BlogEditForm(forms.ModelForm):
     
     class Meta:
         model = models.Blog
-        fields = ('text', 'section')
+        fields = ('title', 'section', 'text')
         widgets = {
               "text": CKEditor5Widget(
                   attrs={"class": "django_ckeditor_5"}, config_name="extends"
@@ -27,12 +28,6 @@ class BlogEditForm(forms.ModelForm):
           }
 
 
-class BlogCommentCreationForm(forms.ModelForm):
-    action = forms.CharField(widget=forms.HiddenInput(), initial='create')
-    
-    class Meta:
+class BlogCommentCreationForm(helpers.forms.AbstractCommentCreationForm):
+    class Meta(helpers.forms.AbstractCommentCreationForm.Meta):
         model = models.BlogComment
-        fields = ("text",)
-        widgets = {
-            'text': forms.Textarea()
-        }

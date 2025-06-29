@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django import forms
 
+import helpers.forms
+
 from users.models import ProfileComment, ProfileMedia, UserProfile
 from .helpers import mcuser
 
@@ -99,15 +101,9 @@ class UserRegistrationForm(forms.ModelForm):
         return user
 
 
-class ProfileCommentCreationForm(forms.ModelForm):
-    action = forms.CharField(widget=forms.HiddenInput(), initial='create')
-    
-    class Meta:
+class ProfileCommentCreationForm(helpers.forms.AbstractCommentCreationForm):
+    class Meta(helpers.forms.AbstractCommentCreationForm.Meta):
         model = ProfileComment
-        fields = ("text",)
-        widgets = {
-            'text': forms.Textarea()
-        }
         
     
 class ProfileUpdateForm(forms.ModelForm):
