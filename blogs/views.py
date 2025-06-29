@@ -3,6 +3,11 @@ from django.shortcuts import render
 
 # Create your views here.
 
+def index_page(request: HttpRequest):
+    context = {}
+    
+    return render(request, 'blogs/index_page.html', context=context)
+
 
 def blog_list(request: HttpRequest):
     pass
