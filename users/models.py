@@ -12,6 +12,12 @@ class UserProfileManager(models.Manager):
         return super().get_queryset().filter(user__is_active=True).filter(is_visible=True)
 
 
+class IsVisibleManager(models.Manager):
+    """Manager class that queries only the objects that have a field `is_visible` set to `True`."""
+    def get_queryset(self):
+        return super().get_queryset().filter(is_visible=True)
+
+
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     bio = models.CharField('Bio', max_length=512, default='', blank=True)
@@ -57,6 +63,11 @@ class ProfileMedia(models.Model):
     title = models.CharField('Profile Media Title', max_length=32, null=True, blank=True)
     is_visible = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    objects: IsVisibleManager = IsVisibleManager()
+    """Model Manager that searches for visible profile media."""
+    all_objects = models.Manager()
+    """Model Manager that searches for all profile media."""
     
 
 class AwardType(models.Model):

@@ -41,7 +41,7 @@ def user_page(request: HttpRequest, slug: str):
 
     context = {
         'profile': profile,
-        'media_list': ProfileMedia.objects.filter(profile=profile, is_visible=True)[:3],
+        'media_list': ProfileMedia.objects.filter(profile=profile)[:3],
         'comments': ProfileComment.objects.filter(profile=profile),
         'comment_form': forms.ProfileCommentCreationForm(),
         # The current user is a subscriber of this user
@@ -142,7 +142,7 @@ class UserMediaList(ListView):
         # Get only the visible media of the user that is being checked
         profile = profiles.get_userprofile_or_404(
             self.kwargs["slug"]).user.profile
-        return ProfileMedia.objects.filter(profile=profile, is_visible=True)
+        return ProfileMedia.objects.filter(profile=profile)
 
     def get_context_data(self, **kwargs):
         new_context = super().get_context_data(**kwargs)
@@ -189,7 +189,7 @@ def user_media_upload(request: HttpRequest, slug: str):
 def user_media_delete(request: HttpRequest, slug):
     profile: UserProfile = profiles.get_userprofile_or_404(slug)
 
-    media_list = profile.media_list.filter(is_visible=True)
+    media_list = profile.media_list.filter()
 
     context = {"media_list": media_list}
 
@@ -343,6 +343,16 @@ class TimelinePage(ListView):
     def get_queryset(self):
         return Blog.objects.filter(
             author__profile__in=self.request.user.profile.subscriptions.all()).order_by('-created_at')[:50]
+        
+def timeline_page(request: HttpRequest):
+    context = {}
+    
+    user_subscriptions = request.user.profile.subscriptions.all()
+    
+    blogs = Blog.objects.filter(author__profile__in=user_subscriptions).order_by('-created_at')[:50]
+    images = ProfileMedia.objects.filter(profile__in=user_subscriptions).order_by('-created_at')[:50]
+    
+    return render(request, 'users/timeline.html', context)
 
 
 @login_not_required
