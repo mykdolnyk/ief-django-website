@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.http import Http404
-from users.models import RegistrationApplication, UserProfile
+from users.models import AwardType, RegistrationApplication, UserAward, UserProfile
 from .mcuser import username_to_mc_uuid
 from users.helpers import mcuser
 from django.core.files.base import ContentFile
@@ -33,9 +33,17 @@ def register_user(form_data) -> User:
 
 
 def approve_user(user: User):
+    if user.application.status == 1:
+        raise ValueError('The user is already approved')
+    
     update_pfp(user.profile) # Create PFP
     user.is_active = True
     user.application.status = 1 # The application is approved
+    
+    # The user gets an Award for being approved:
+    new_award = AwardType.objects.get(code='user_get_approved')
+    if new_award:
+        user.awards.create(type=new_award)
 
     user.save()
 

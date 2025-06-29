@@ -1,0 +1,15 @@
+{% extends 'parts/base.html' %}
+
+{% block title %}{{ profile.user.username }} Awards{% endblock title %}
+
+
+{% block content %}
+<h1>Awards</h1>
+<ul>
+    {% for award in awards %}
+        <img src="{{ award.type.picture.url }}" alt="{{award.type.description}}" style="height: 64px;">
+        {{ award.type.name }} - acquired on {{award.created_at}}
+    {% endfor %}
+</ul>
+
+{% endblock content %}

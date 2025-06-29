@@ -62,15 +62,23 @@ class ProfileMedia(models.Model):
     is_visible = models.BooleanField(default=True)
     
 
-class Award(models.Model):
-    name = models.CharField(_("Awards"), max_length=32)
+class AwardType(models.Model):
+    name = models.CharField(_("Award Type"), max_length=32)
     description = models.CharField(_("Description"), max_length=256)
     picture = models.ImageField(_("Image"), upload_to='awards/')
+    code = models.CharField('The Award Type code', max_length=64)
+    
+    def __str__(self) -> str:
+        return f"'{self.name}' Award"
 
 
 class UserAward(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='awards')
-    award = models.ForeignKey(Award, on_delete=models.CASCADE)
+    type = models.ForeignKey(AwardType, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self) -> str:
+        return f"{self.user.username}'s Award: {self.type.name}"
 
 
 class Notification(models.Model):

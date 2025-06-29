@@ -5,7 +5,7 @@ from django.http import Http404, HttpResponseNotAllowed, HttpRequest, HttpRespon
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from .forms import ProfileCommentCreationForm, ProfileUpdateForm, UserRegistrationForm, UserUpdateForm
-from .models import ProfileComment, User, UserProfile
+from .models import ProfileComment, User, UserAward, UserProfile
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
@@ -71,9 +71,14 @@ def create_comment(request: HttpRequest, slug: str):
 
 
 def user_award_list(request: HttpRequest, slug: str):
-    profile = users.get_userprofile_or_404(slug)
+    profile: UserProfile = users.get_userprofile_or_404(slug)
 
-    pass
+    awards = profile.user.awards.filter()
+    
+    context = {'awards': awards}
+
+    return render(request, 'users/profile/user_awards.html', context=context)
+
 
 @login_required(login_url=settings.LOGIN_PAGE_NAME)
 def user_subscribe(request: HttpRequest, slug: str):
@@ -246,6 +251,6 @@ def logout_page(request: HttpRequest):
             return redirect(reverse('register_page'))
 
         elif request.POST.get('no'):
-            return redirect(reverse('user_page'))
+            return redirect(reverse('user_page', args=(request.user.profile.slug,)))
 
     return render(request, 'users/logreg/logout_page.html', context=context)

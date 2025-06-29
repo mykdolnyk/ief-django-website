@@ -34,10 +34,10 @@
         None yet...
     {% endfor %}
 
-    <h3>My Awards:</h3>
+    <h3>My <a href="{% url 'user_award_list' request.user.profile.slug %}">Awards:</a></h3>
     {% for user_award in profile.user.awards.filter %}
         <ul>
-            <li>{{ user_award.award.name }}</li>
+            <li>{{ user_award.type.name }}</li>
         </ul>
     {% empty %}
         None yet...
