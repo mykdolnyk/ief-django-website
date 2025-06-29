@@ -51,7 +51,6 @@ class UserRegistrationForm(forms.ModelForm):
 
         validate_password(data, User)
 
-
         return data
     
     def clean_password2(self):
@@ -66,7 +65,7 @@ class UserRegistrationForm(forms.ModelForm):
     
     def clean_username(self):
         data = self.cleaned_data["username"]
-        if User.objects.filter(username=data).exists():
+        if User.objects.filter(username__iexact=data).exists():
             raise forms.ValidationError(
                 "The username is already taken."
             )
@@ -96,5 +95,3 @@ class UserRegistrationForm(forms.ModelForm):
             if hasattr(self, "save_m2m"):
                 self.save_m2m()
         return user
-
-

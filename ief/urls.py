@@ -12,6 +12,8 @@ urlpatterns = [
     
     path('', blogviews.index_page, name='index_page'),
     
+    path("notifications/", userviews.user_notifications, name="user_notifications"), 
+    
     path('login/', userviews.login_page, name=settings.LOGIN_PAGE_NAME),
     path('register/', userviews.register_page, name='register_page'),
     path('logout/', userviews.logout_page, name='logout_page'),

@@ -5,8 +5,8 @@
 {% block content %}
     <h1>User List</h1>
     <ul>
-        {% for user in user_list %}
-            <li><a href="{% url 'user_page' user.profile.slug %}">{{ user.username }}</a></li>
+        {% for user_profile in userprofile_list %}
+            <li><a href="{% url 'user_page' user_profile.slug %}">{{ user_profile.user.username }}</a></li>
         {% empty %}
             There are no users yet...
         {% endfor %}

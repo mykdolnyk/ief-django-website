@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.http import Http404
 from users.models import RegistrationApplication, UserProfile
 from .mcuser import username_to_mc_uuid
 
@@ -27,3 +28,12 @@ def register_user(form_data) -> User:
         raise exc # Raise the same exception again for further processing
 
     return user
+
+
+def get_userprofile_or_404(slug):
+    try:
+        profile = UserProfile.objects.get(slug=slug.lower())
+    except UserProfile.DoesNotExist:
+        raise Http404()
+    
+    return profile

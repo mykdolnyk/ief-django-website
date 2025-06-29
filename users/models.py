@@ -4,6 +4,21 @@ from django.utils.translation import gettext_lazy as _
 
 from users.helpers.mcuser import username_to_mc_uuid
 
+class UserManager(models.Manager):
+    """User manager class that implements some useful methods.
+    """
+    def subscribers(self, of_user):
+        """A handy method that returns the queryset of Users that are subscribers of the `of_user` User.
+
+        Args:
+            of_user (UserProfile): An instance of the user profile
+
+        Returns:
+            QuerySet: set of Users that are subscribed to the `of_user` User.
+        """
+        return self.filter(subscriptions__id=of_user.pk)
+
+
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     bio = models.CharField('Bio', max_length=512, default='', blank=True)
@@ -11,9 +26,12 @@ class UserProfile(models.Model):
     mcuuid = models.UUIDField('Minecraft UUID', editable=False)
     slug = models.SlugField(default='', null=False)
     pfp = models.ImageField('Profile picture', upload_to='pfps', null=True, blank=True)
+    subscriptions = models.ManyToManyField('self', blank=True, symmetrical=False)
     
+    objects = UserManager()
+
     def __str__(self):
-        return f"{self.user.username}'s Profile"
+        return f"{self.user.username}"
 
     def save(self, *args, **kwargs) -> None:
         self.slug = str(self.user.username).lower()
@@ -22,7 +40,7 @@ class UserProfile(models.Model):
 
 
 class ProfileComment(models.Model):
-    profile = models.ForeignKey(UserProfile, verbose_name=UserProfile, on_delete=models.SET_NULL, null=True)
+    profile = models.ForeignKey(UserProfile, verbose_name='UserProfile', on_delete=models.SET_NULL, null=True)
     text = models.CharField(max_length=512)
     is_visible = models.BooleanField(default=False)
     
@@ -64,16 +82,16 @@ class Notification(models.Model):
         return f'<{self.user.profile.username} Notification>'
     
 
-class Friend(models.Model):
-    user = models.ForeignKey(User, verbose_name='The User', related_name='friends', on_delete=models.CASCADE)
-    friend = models.ForeignKey(User, verbose_name="The user's friend", on_delete=models.CASCADE)
+# class Friend(models.Model):
+#     user = models.ForeignKey(User, verbose_name='The User', related_name='friends', on_delete=models.CASCADE)
+#     friend = models.ForeignKey(User, verbose_name="The user's friend", on_delete=models.CASCADE)
     
-    class Meta:
-        verbose_name = _("Friends")
-        verbose_name_plural = _("Friendss")
+#     class Meta:
+#         verbose_name = _("Friend")
+#         verbose_name_plural = _("Friends")
 
-    def __str__(self):
-        return self.name
+#     def __str__(self):
+#         return f"{self.user.username}'s friend: {self.friend.username}"
 
 
 class RegistrationApplication(models.Model):

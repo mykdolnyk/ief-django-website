@@ -1,0 +1,27 @@
+{% extends 'parts/base.html' %}
+
+{% block title %}{{ profile.user.username }} Followings{% endblock title %}
+
+
+{% block content %}
+<h2>Followers:</h2>
+
+{% for subscription_profile in subscriber_list %}
+    <ul>
+        <li><a href="{% url 'user_page' subscription_profile.slug %}">{{ subscription_profile.user.username }}</a></li>
+    </ul>
+{% empty %}
+    None...
+{% endfor %}
+
+<h2>Follows:</h2>
+
+{% for subscription_profile in subscription_list %}
+    <ul>
+        <li><a href="{% url 'user_page' subscription_profile.slug %}">{{ subscription_profile.user.username }}</a></li>
+    </ul>
+{% empty %}
+    None...
+{% endfor %}
+
+{% endblock content %}
