@@ -7,7 +7,7 @@ class BlankCharactersValidator:
     """
 
     def validate(self, password: str, user=None):
-        if len(password.strip()) >= 1:
+        if len(password.split()) > 1:
             raise ValidationError(
                 _("This password contains blank characters."),
                 code="password_blank_spaces",
