@@ -64,7 +64,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'users.helpers.context_processors.notification_count',
-                'helpers.context_processors.project_settings',
+                'common.context_processors.project_settings',
             ],
         },
     },
@@ -223,6 +223,9 @@ CACHES = {
         "LOCATION": "redis://redis:6379",
     }
 }
+
+CELERY_BROKER_URL = "redis://redis:6379"
+CELERY_RESULT_BACKEND = "redis://localhost:6379"
 
 ############## CKEDITOR SETTINGS ##############
 

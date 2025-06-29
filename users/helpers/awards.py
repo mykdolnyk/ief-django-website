@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from blogs.models import Blog, BlogComment
-from helpers.models import AbstractComment
+from common.models import AbstractComment
 from users.models import AwardType, Notification, ProfileComment
 
 def grant_award(user:User, award_type_code:str, silent:bool=False):

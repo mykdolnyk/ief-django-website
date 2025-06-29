@@ -1,5 +1,5 @@
 from django import forms
-import helpers.forms
+import common.forms
 from . import models
 from django_ckeditor_5.fields import CKEditor5Widget
 from django.utils.html import strip_tags
@@ -24,6 +24,6 @@ class BlogEditForm(forms.ModelForm):
         return data
 
 
-class BlogCommentCreationForm(helpers.forms.AbstractCommentCreationForm):
-    class Meta(helpers.forms.AbstractCommentCreationForm.Meta):
+class BlogCommentCreationForm(common.forms.AbstractCommentCreationForm):
+    class Meta(common.forms.AbstractCommentCreationForm.Meta):
         model = models.BlogComment

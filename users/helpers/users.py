@@ -1,7 +1,7 @@
 import logging
 from django.contrib.auth.models import User
 from django.http import Http404, HttpRequest
-from helpers.email import send_application_approval_email, send_application_rejection_email
+from common.email import send_application_approval_email, send_application_rejection_email
 from users.models import RegistrationApplication, UserProfile
 from users.helpers import mcuser
 from django.core.files.base import ContentFile

@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 
-from helpers.models import AbstractComment
+from common.models import AbstractComment
 from users.models import Notification, ProfileComment, UserProfile
 from blogs.models import Blog, BlogComment
 

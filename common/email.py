@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
-
+# from .tasks import send_email_to_user
 
 def send_email_to_user(email_message: EmailMessage, user:User=None):
     """Send an email to the user's email address set in the account.
@@ -24,7 +24,7 @@ def send_registration_confirmation_email(user: User):
                'user': user}
     email = EmailMessage("Your Application has been Submitted",
                          render_to_string('email/application_submitted.html', context=context))
-    send_email_to_user(email_message=email, user=user)
+    send_email_to_user.delay(email_message=email, user=user)
 
 
 def send_application_approval_email(user: User):
@@ -32,7 +32,7 @@ def send_application_approval_email(user: User):
                'user': user}
     email = EmailMessage("Your Application has been Approved",
                          render_to_string('email/application_approved.html', context=context))
-    send_email_to_user(email_message=email, user=user)
+    send_email_to_user.delay(email_message=email, user=user).delay()
 
 
 def send_application_rejection_email(user: User):
@@ -40,4 +40,4 @@ def send_application_rejection_email(user: User):
                'user': user}
     email = EmailMessage("Your Application has been Rejected",
                          render_to_string('email/application_rejected.html', context=context))
-    send_email_to_user(email_message=email, user=user)
+    send_email_to_user.delay(email_message=email, user=user).delay()

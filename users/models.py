@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 from users.helpers.file_uploading import profile_media_upload
 from users.helpers.mcuser import username_to_mc_uuid
-from helpers.models import AbstractComment
+from common.models import AbstractComment
 
 class UserProfileManager(models.Manager):
     """User manager class that implements some useful methods"""

@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
-import helpers.forms
+import common.forms
 
 from users.models import ProfileComment, ProfileMedia, UserProfile
 from .helpers import mcuser
@@ -105,8 +105,8 @@ class UserAuthenticationForm(AuthenticationForm):
         )
 
 
-class ProfileCommentCreationForm(helpers.forms.AbstractCommentCreationForm):
-    class Meta(helpers.forms.AbstractCommentCreationForm.Meta):
+class ProfileCommentCreationForm(common.forms.AbstractCommentCreationForm):
+    class Meta(common.forms.AbstractCommentCreationForm.Meta):
         model = ProfileComment
 
 

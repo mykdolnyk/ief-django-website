@@ -1,6 +1,6 @@
 from django import forms
 
-from helpers import models
+from common import models
 
 class AbstractCommentCreationForm(forms.ModelForm):
     action = forms.CharField(widget=forms.HiddenInput(), initial='create')

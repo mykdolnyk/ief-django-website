@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 import django_ckeditor_5.fields
 from slugify import slugify as python_slufigy
 
-from helpers.models import AbstractComment
+from common.models import AbstractComment
 # Create your models here.
 
 

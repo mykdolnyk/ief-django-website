@@ -20,7 +20,7 @@ from users.helpers.notifications import notify_about_comment
 from .forms import ProfileCommentCreationForm, ProfileUpdateForm, UploadMediaForm, UserAuthenticationForm, UserRegistrationForm, UserUpdateForm, UserPasswordChangeForm
 from .models import Notification, ProfileComment, ProfileMedia, User, UserAward, UserProfile
 from .helpers import users
-from helpers import form_processing, email
+from common import form_processing, email
 
 import logging
 
