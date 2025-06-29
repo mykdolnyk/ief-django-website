@@ -11,6 +11,7 @@ from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmVie
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.cache import cache
 from django.conf import settings
 
 from blogs.models import Blog
@@ -24,6 +25,7 @@ from helpers import form_processing, email
 import logging
 
 logger = logging.getLogger(__name__)
+login_restriction_logger = logging.getLogger(__name__ + '.login_page')
 
 
 class UserListView(ListView):
@@ -357,18 +359,41 @@ def register_page(request: HttpRequest):
     context = {}
 
     if request.method == 'POST':
-        form = UserRegistrationForm(request.POST)
+        form = UserRegistrationForm(request.POST.dict())
+        
+        # Check if the client has sent too many applications in the recent time
+        user_ip = users.get_ip_address(request)
+        application_restricted = cache.get(f'application_restricted:{user_ip}', default=False)
+        
+        if application_restricted:
+            messages.info(request, "You have already sent too many applications. Please try again later.")
+            context['form'] = UserRegistrationForm(initial=form.data)
 
+            return render(request, 'users/logreg/register_page.html', context=context)
+        
         if form.is_valid():
             # Save the User, the Application and Profile instances
             try:
                 user = users.register_user(form)
                 email.send_registration_confirmation_email(user=user)
 
-                if settings.DEBUG:  # If Django Debug Mode is ON
-                    # ! IS HERE FOR DEBUG PURPOSES, SHOULD BE REMOVED IN PRODUCTION
-                    # user.application.status = 1 # In this case, the signal doesn't approve the user automatically
+                if settings.APPLICATIONS_APPROVE_AUTOMATICALLY:
+                    user.application.status = 1 # In this case, the signal doesn't approve the user automatically
                     user.application.save()  # But calling the `save` method does
+                    
+                # Increase the number of sent applications
+                try:
+                    application_attempts = cache.incr(f'application_attempts:{user_ip}', 1)
+                except ValueError:
+                    cache.set(f'application_attempts:{user_ip}', 1, 3600*24)
+                    application_attempts = 1
+                
+                # Restrict ability to send applications for set period
+                if application_attempts % settings.APPLICATION_ATTEMPTS_MAX == 0:
+                    cache.set(f'application_restricted:{user_ip}', 
+                              value=True, 
+                              timeout=settings.APPLICATION_RESTRICTION_TIMEOUT)
+                                            
             except Exception as exc:
                 logger.critical(exc, exc_info=True)
                 form.add_error(
@@ -392,9 +417,21 @@ def login_page(request: HttpRequest):
     context = {}
 
     if request.method == 'POST':
-        form = UserAuthenticationForm(data=request.POST)
+        form = UserAuthenticationForm(data=request.POST.dict())
 
-        if form.is_valid():
+        # Check if the IP's access is restricted
+        user_ip = users.get_ip_address(request)
+        login_restricted: bool = cache.get(f'login_restricted:{user_ip}', False)
+        
+        if login_restricted:
+            # Show the error and stop validation
+            messages.error(request, form.error_messages['login_restricted'])
+            context['form'] = UserAuthenticationForm(initial=form.data)
+
+            return render(request, 'users/logreg/login_page.html', context=context)
+
+        # Validate the login information
+        if form.is_valid(): 
             user: User = form.get_user()
 
             try:
@@ -405,8 +442,22 @@ def login_page(request: HttpRequest):
                 form.add_error('', form.get_invalid_login_error())
             else:
                 login(request, user)
-                next = request.GET.get('next')
-                return redirect(next or reverse('index_page'))
+                cache.delete(f"failed_login_attempts:{user_ip}")
+                next_page = request.GET.get('next')
+                return redirect(next_page or reverse('index_page'))
+        else:
+            # Get and increase the number of failed login attempts. Set it to 1 if it is the first one
+            try: 
+                failed_login_attempts = cache.incr(f"failed_login_attempts:{user_ip}", 1)
+            except ValueError:
+                cache.set(f"failed_login_attempts:{user_ip}", value=1, timeout=3600)
+                failed_login_attempts = 1
+
+            # Restrict login access every 10th attempt and log that
+            if (failed_login_attempts % settings.LOGIN_ATTEMPTS_MAX) == 0:
+                cache.set(f'login_restricted:{user_ip}', True, timeout=settings.LOGIN_RESTRICTION_TIMEOUT)
+                login_restriction_logger.info(f"The {user_ip} address was restricted trying to log " \
+                    f"into the {form.data.get('username')} account. Total login attempts recently: {failed_login_attempts}")
 
     elif request.method == 'GET':
         form = UserAuthenticationForm()

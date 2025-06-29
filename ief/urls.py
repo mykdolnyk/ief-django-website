@@ -10,6 +10,7 @@ from django.views.decorators.cache import cache_page
 
 urlpatterns = [
     path('', blogviews.index_page, name='index_page'),
+    path('admin/login/', userviews.login_page, name='admin_login_page'),
     path('admin/', admin.site.urls),
     path('user/', include('users.urls')),
     path('blog/', include('blogs.urls')),

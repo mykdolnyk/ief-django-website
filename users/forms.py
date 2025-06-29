@@ -1,4 +1,4 @@
-from django.contrib.auth.forms import UserCreationForm
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django import forms
@@ -82,6 +82,11 @@ class UserRegistrationForm(forms.ModelForm):
 
 
 class UserAuthenticationForm(AuthenticationForm):
+    # Expand the error messages dict
+    error_messages = {'login_restricted':
+                      f'Too many login attempts. Please try again in about {settings.LOGIN_RESTRICTION_TIMEOUT // 60} minutes.',
+                      **AuthenticationForm.error_messages}
+
     def clean_username(self):
         # To make the form case-insensetive, I will replace 
         # the incorrect casing with the correct one
@@ -92,8 +97,14 @@ class UserAuthenticationForm(AuthenticationForm):
         except User.DoesNotExist:
             return self.get_invalid_login_error()
         return correct_username
-   
-    
+
+    def get_login_restricted_error(self):
+        return forms.ValidationError(
+            self.error_messages['login_restricted'],
+            code='login_restricted'
+        )
+
+
 class ProfileCommentCreationForm(helpers.forms.AbstractCommentCreationForm):
     class Meta(helpers.forms.AbstractCommentCreationForm.Meta):
         model = ProfileComment
@@ -130,7 +141,6 @@ class UserUpdateForm(forms.ModelForm):
 
         return data
 
-
     def save(self, commit=True):
         user: User = super().save(commit=False)
 
@@ -143,16 +153,18 @@ class UserUpdateForm(forms.ModelForm):
 
 
 class UserPasswordChangeForm(forms.ModelForm):
-    
+
     password1 = forms.CharField(
         label="Password",
-        widget=forms.PasswordInput(attrs={"autocomplete": "new-password", 'placeholder': 'Your New Password'}),
+        widget=forms.PasswordInput(
+            attrs={"autocomplete": "new-password", 'placeholder': 'Your New Password'}),
         strip=False,
         required=False
     )
     password2 = forms.CharField(
         label="Password confirmation",
-        widget=forms.PasswordInput(attrs={"autocomplete": "new-password", 'placeholder': 'Your New Password Again'}),
+        widget=forms.PasswordInput(
+            attrs={"autocomplete": "new-password", 'placeholder': 'Your New Password Again'}),
         strip=False,
         required=False
     )

@@ -148,7 +148,12 @@ DEFAULT_FROM_EMAIL = f'Igni et Ferro <{EMAIL_HOST_USER}>'
 
 LOGIN_PAGE_NAME = 'login_page'
 LOGIN_URL = '/login/'
+LOGIN_RESTRICTION_TIMEOUT = 60 * 15
+LOGIN_ATTEMPTS_MAX = 10
 
+APPLICATION_RESTRICTION_TIMEOUT = 60 * 60
+APPLICATION_ATTEMPTS_MAX = 5
+APPLICATIONS_APPROVE_AUTOMATICALLY = True
 
 LOGGING = {
     'version': 1,
@@ -180,6 +185,12 @@ LOGGING = {
             'class': 'logging.FileHandler',
             'formatter': 'verbose',
             'filename': BASE_DIR / 'logs/user_approved_log.log'
+        },
+        'user_login_restrictions_file': {
+            'level': "INFO",
+            'class': "logging.FileHandler",
+            'formatter': 'verbose',
+            'filename': BASE_DIR / 'logs/user_restrictions_log.log'
         }
     },
     
@@ -189,6 +200,11 @@ LOGGING = {
             'level': "INFO",
             'propagate': False,
         },
+        'users.views.login_page': {
+            'handlers': ['user_login_restrictions_file', 'console'],
+            'level': "INFO",
+            'propagate': False
+        }
     },
     
     'root': {

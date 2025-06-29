@@ -83,3 +83,16 @@ def get_userprofile_or_404(slug):
         raise Http404()
     
     return profile
+
+
+def get_ip_address(request) -> str:
+    """Gets the IP address from the HttpRequest object and returns it as a string."""
+    ip: str
+    
+    x_forwarded = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded:
+        ip = x_forwarded.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+        
+    return ip
