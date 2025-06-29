@@ -99,6 +99,8 @@ def blog_create_comment(request: HttpRequest, section: str, blog: str):
 
         new_comment.save()
 
+        notify_about_comment(new_comment)
+
         awards.grant_user_comment_creation_awards(user=request.user)
         
     return redirect(reverse('blog_page', args=(section, blog,)))

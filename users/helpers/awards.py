@@ -8,7 +8,11 @@ def grant_award(user:User, award_type_code:str, silent:bool=False):
     sends a notification to the user if needed.
     If the user already has such an award, it doesn't get created, and the function returns
     `False`. If the award was created successfully, returns `True`."""
-    type_of_new_award: AwardType = AwardType.objects.get(code=award_type_code)
+    try:
+        type_of_new_award: AwardType = AwardType.objects.get(code=award_type_code)
+    
+    except AwardType.DoesNotExist:
+        raise AwardType.DoesNotExist('There is no AwardType with such code.')
     
     for award in user.awards.all():
         if award.type == type_of_new_award:
@@ -23,9 +27,6 @@ def grant_award(user:User, award_type_code:str, silent:bool=False):
             text=f'You received a new award: <b>{type_of_new_award.name}</b>! Go check it out in your profile.')
             
         return True
-            
-    else: 
-        raise ValueError('There is no AwardType with such code.')
 
 
 def grant_blog_creation_awards(user: User):
@@ -78,7 +79,7 @@ def grant_user_followers_awards(user: User):
         
 
 def grant_user_media_creation_awards(user: User):
-    media_count = user.media_list.count()
+    media_count = user.profile.media_list.count()
 
     match media_count:
         case 1:

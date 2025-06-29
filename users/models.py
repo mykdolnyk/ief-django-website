@@ -2,12 +2,12 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
+from users.helpers.file_uploading import profile_media_upload
 from users.helpers.mcuser import username_to_mc_uuid
 from helpers.models import AbstractComment
 
 class UserProfileManager(models.Manager):
-    """User manager class that implements some useful methods.
-    """
+    """User manager class that implements some useful methods"""
     def get_queryset(self):
         return super().get_queryset().filter(user__is_active=True)
 
@@ -50,7 +50,7 @@ class ProfileComment(AbstractComment):
     
 class ProfileMedia(models.Model):
     profile = models.ForeignKey(UserProfile, verbose_name='User Profile', related_name='media_list', on_delete=models.SET_NULL, null=True)
-    image = models.ImageField('Profile Image', upload_to="users/profile_media/")
+    image = models.ImageField('Profile Image', upload_to=profile_media_upload)
     title = models.CharField('Profile Media Title', max_length=32, null=True, blank=True)
     is_visible = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -81,7 +81,10 @@ class Notification(models.Model):
     is_seen = models.BooleanField(_("Is seen"), default=False)
     is_deleted = models.BooleanField(_("Is deleted"), default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    identifier = models.CharField(_('Identifier'), max_length=128)
+    """A string that can be used to quickly find the notification. Should have the
+    following format: "`action;arg1:value;arg2:value;...;`\""""
+    
     class Meta:
         verbose_name = _("Notification")
         verbose_name_plural = _("Notifications")
@@ -105,7 +108,7 @@ class RegistrationApplication(models.Model):
         1: 'Approved',
         2: 'Rejected'
     }
-    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, related_name='application')
+    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, related_name='application', blank=True)
     text = models.CharField(_("Text"), max_length=256, blank=True)
     status = models.SmallIntegerField('Application status', default=0, choices=APPLICATION_STATUSES)
     was_ever_reviewed = models.BooleanField('Was the Application ever reviewed?', default=False)
