@@ -13,13 +13,11 @@ from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmVie
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages 
 from django.core.exceptions import ObjectDoesNotExist
-
-
 from django.conf import settings
 
 from blogs.models import Blog
 from users.helpers import awards
-from .forms import ProfileCommentCreationForm, ProfileUpdateForm, UploadMediaForm, UserRegistrationForm, UserUpdateForm, UserPasswordChangeForm
+from .forms import ProfileCommentCreationForm, ProfileUpdateForm, UploadMediaForm, UserAuthenticationForm, UserRegistrationForm, UserUpdateForm, UserPasswordChangeForm
 from .models import Notification, ProfileComment, ProfileMedia, User, UserAward, UserProfile
 from .helpers import users
 from helpers import form_processing, email
@@ -96,8 +94,7 @@ class UserAwardList(LoginRequiredMixin, ListView):
 @login_required(login_url=settings.LOGIN_PAGE_NAME)
 def user_subscribe(request: HttpRequest, slug: str):
     """A view that is responsible for creating and deleting
-    subscription instances on POST.
-    """
+    subscription instances on POST."""
     profile = users.get_userprofile_or_404(slug)
     
     response = {
@@ -383,7 +380,7 @@ def login_page(request: HttpRequest):
     context = {}
 
     if request.method == 'POST':
-        form = AuthenticationForm(data=request.POST)
+        form = UserAuthenticationForm(data=request.POST)
 
         if form.is_valid():
             user: User = form.get_user()
@@ -399,7 +396,7 @@ def login_page(request: HttpRequest):
                 return redirect(reverse('index_page'))
 
     elif request.method == 'GET':
-        form = AuthenticationForm()
+        form = UserAuthenticationForm()
 
     context['form'] = form
 
@@ -413,7 +410,7 @@ def logout_page(request: HttpRequest):
     if request.method == 'POST':
         if request.POST.get('yes'):
             logout(request)
-            return redirect(reverse('register_page'))
+            return redirect(reverse('login_page'))
 
         elif request.POST.get('no'):
             return redirect(reverse('user_page', args=(request.user.profile.slug,)))

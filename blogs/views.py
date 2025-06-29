@@ -102,7 +102,7 @@ def blog_create_comment(request: HttpRequest, section: str, blog: str):
         new_comment.owner = request.user # The owner of the comment is the request user
 
         new_comment.save()
-        
+
         awards.grant_user_comment_creation_awards(user=request.user)
         
     return redirect(reverse('blog_page', args=(section, blog,)))

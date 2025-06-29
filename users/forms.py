@@ -2,7 +2,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django import forms
-
+from django.contrib.auth.forms import AuthenticationForm
 import helpers.forms
 
 from users.models import ProfileComment, ProfileMedia, UserProfile
@@ -82,6 +82,19 @@ class UserRegistrationForm(forms.ModelForm):
         return user
 
 
+class UserAuthenticationForm(AuthenticationForm):
+    def clean_username(self):
+        # To make the form case-insensetive, I will replace 
+        # the incorrect casing with the correct one
+        data = self.cleaned_data.get("username")
+        
+        try:
+            correct_username = User.objects.get(username__iexact=data)
+        except User.DoesNotExist:
+            return self.get_invalid_login_error()
+        return correct_username
+   
+    
 class ProfileCommentCreationForm(helpers.forms.AbstractCommentCreationForm):
     class Meta(helpers.forms.AbstractCommentCreationForm.Meta):
         model = ProfileComment
