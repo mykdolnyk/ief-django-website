@@ -69,6 +69,10 @@ class ProfileMedia(models.Model):
     all_objects = models.Manager()
     """Model Manager that searches for all profile media."""
     
+    @property
+    def type(self):
+        return 'ProfileMedia'
+    
 
 class AwardType(models.Model):
     name = models.CharField(_("Award Type"), max_length=32)

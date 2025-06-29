@@ -1550,11 +1550,22 @@ input[form='media-delete-form'] {
 .timeline-container {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 25px;
+    word-break: break-all;
 }
 
 .timeline-container h2 {
     margin: 10px 0px 0px;
+}
+
+.timeline-container .image-card{
+    align-self: flex-start;
+    width: auto;
+    min-width: 400px;
+}
+
+.timeline-container .image-card > img{
+    height: 300px;
 }
 
 /* Django Error List */

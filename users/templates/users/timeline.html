@@ -3,15 +3,28 @@
 {% block title %}My Timeline{% endblock title %}
 
 {% block content %}
-
 <h1>Here is your Timeline</h1>
 <div class="timeline-container">
-    {% for blog in blogs %}
-    <div class="background">
-        <h2><a href="{% url 'blog_page' blog.section.slug blog.slug %}" class="white-link">{{ blog.title }}</a><span class="author"> by {% include 'parts/users/username_display.html' with user=blog.author %}</span></h2>
-        <p class="grey">on {% include 'parts/date_time.html' with date_time=blog.created_at %}</p>
-        <p>{{ blog.text|striptags|safe|truncatewords:30|truncatechars:250 }} <a href="{% url 'blog_page' blog.section blog.slug %}">More...</a></p>
-    </div>
+    {% for item in items %}
+        {% if item.type == 'Blog' %}
+            <div class="background">
+                <h2><a href="{% url 'blog_page' item.section.slug item.slug %}" class="white-link">{{ item.title }}</a><span class="author"> by {% include 'parts/users/username_display.html' with user=item.author %}</span></h2>
+                <p class="grey">on {% include 'parts/date_time.html' with date_time=item.created_at %}</p>
+                <p>{{ item.text|striptags|safe|truncatewords:30|truncatechars:250 }} <a href="{% url 'blog_page' item.section.slug item.slug %}">More...</a></p>
+            </div>
+        {% else %}
+            <div class="card image-card">
+                <img src="{{item.image.url}}" alt="{{item.title}}">
+                <p>{% if item.title %}{{item.title}}{% endif %}</p>
+                <div class="card-info">
+                    <p>by {% include 'parts/users/username_display.html' with user=item.profile.user %}</p> 
+                    <p class="date">on {{item.created_at|date}}</p>
+                    <p class="more"><a href="{% url 'media_detail' item.pk %}">Check it Out</a></p>
+                </div>
+            </div>
+
+        {% endif %}
+
     {% endfor %}
     <h2>That's it!</h2>
 </div>

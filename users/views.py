@@ -1,4 +1,5 @@
 from typing import Any
+from itertools import chain
 from django.db.models.query import QuerySet
 from django.http import HttpResponseNotAllowed, HttpRequest, JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
@@ -336,21 +337,19 @@ def refresh_pfp(request: HttpRequest, slug: str):
     return redirect(reverse('user_edit', args=[slug]))
 
 
-class TimelinePage(ListView):
-    template_name = 'users/timeline.html'
-    context_object_name = 'blogs'
-
-    def get_queryset(self):
-        return Blog.objects.filter(
-            author__profile__in=self.request.user.profile.subscriptions.all()).order_by('-created_at')[:50]
-        
 def timeline_page(request: HttpRequest):
     context = {}
     
     user_subscriptions = request.user.profile.subscriptions.all()
     
-    blogs = Blog.objects.filter(author__profile__in=user_subscriptions).order_by('-created_at')[:50]
-    images = ProfileMedia.objects.filter(profile__in=user_subscriptions).order_by('-created_at')[:50]
+    blogs = Blog.objects.filter(author__profile__in=user_subscriptions).order_by('-created_at')[:25]
+    images = ProfileMedia.objects.filter(profile__in=user_subscriptions).order_by('-created_at')[:25]
+    
+    # Combine blogs and images, sort them
+    items = chain(blogs, images)
+    items = sorted(items, key=lambda x: x.created_at, reverse=True)
+    
+    context['items'] = items
     
     return render(request, 'users/timeline.html', context)
 

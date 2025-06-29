@@ -32,6 +32,10 @@ class Blog(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
+    @property
+    def type(self):
+        return 'Blog'
+    
     def save(self, *args, **kwargs) -> None:
         # Create a slug: first, slugify the title, then
         # replace _ with -. It is needed to prevent creating

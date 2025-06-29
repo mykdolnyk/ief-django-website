@@ -16,7 +16,7 @@ urlpatterns = [
     path('blog/', include('blogs.urls')),
     path('media/', blogviews.AllMediaList.as_view(), name='all_media_list'),
     path('media/<int:pk>/', userviews.UserMediaDetail.as_view(), name='media_detail'),
-    path('timeline/', userviews.TimelinePage.as_view(), name='user_timeline'),
+    path('timeline/', userviews.timeline_page, name='user_timeline'),
     path("notifications/", userviews.user_notification_list, name="user_notification_list"),
     
     path('login/', userviews.login_page, name=settings.LOGIN_PAGE_NAME),
