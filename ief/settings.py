@@ -2,11 +2,11 @@ from pathlib import Path
 from os import getenv as env
 
 # Should environment variables be loaded using the dotenv module or not
-USE_DOTENV = True
+USE_DOTENV = False
 
 if USE_DOTENV:
     from dotenv import load_dotenv
-    load_dotenv(Path('.') / '.env')
+    load_dotenv(Path('.') / 'test.env')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

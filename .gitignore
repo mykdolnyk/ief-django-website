@@ -3,8 +3,10 @@ __pycache__
 .devnotes
 .venv
 db.sqlite3
+
 media/*
-.bootstrap
+!media/awards
+
 .vscode
 *.log
 .env

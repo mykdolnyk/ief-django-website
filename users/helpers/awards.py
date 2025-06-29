@@ -34,15 +34,15 @@ def grant_blog_creation_awards(user: User):
 
     match blog_count:
         case 1:
-            grant_award(user, 'blog_first_post')
+            grant_award(user, 'blog_post_1')
         case 5:
-            grant_award(user, 'blog_5th_post')
+            grant_award(user, 'blog_post_2')
         case 20:
-            grant_award(user, 'blog_20th_post')
+            grant_award(user, 'blog_post_3')
         case 50:
-            grant_award(user, 'blog_50th_post')
+            grant_award(user, 'blog_post_4')
         case 100:
-            grant_award(user, 'blog_100th_post')
+            grant_award(user, 'blog_post_5')
 
 
 def grant_blog_likes_awards(user: User):
@@ -50,15 +50,15 @@ def grant_blog_likes_awards(user: User):
 
     match like_count:
         case 1:
-            grant_award(user, 'blog_first_like')
+            grant_award(user, 'blog_like_1')
         case 5:
-            grant_award(user, 'blog_5th_like')
+            grant_award(user, 'blog_like_2')
         case 20:
-            grant_award(user, 'blog_20th_like')
+            grant_award(user, 'blog_like_3')
         case 50:
-            grant_award(user, 'blog_50th_like')
+            grant_award(user, 'blog_like_4')
         case 100:
-            grant_award(user, 'blog_100th_like')
+            grant_award(user, 'blog_like_5')
 
 
 def grant_user_followers_awards(user: User):
@@ -67,15 +67,15 @@ def grant_user_followers_awards(user: User):
 
     match follower_count:
         case 1:
-            grant_award(user, 'user_first_follower')
+            grant_award(user, 'user_follower_1')
         case 5:
-            grant_award(user, 'user_5th_follower')
+            grant_award(user, 'user_follower_2')
         case 10:
-            grant_award(user, 'user_10th_follower')
+            grant_award(user, 'user_follower_3')
             
     """Check if all users were subscribed"""
     if follower_count == total_users_count:
-        grant_award(user, 'user_every_follower')
+        grant_award(user, 'user_every_follower_1')
         
 
 def grant_user_media_creation_awards(user: User):
@@ -83,11 +83,11 @@ def grant_user_media_creation_awards(user: User):
 
     match media_count:
         case 1:
-            grant_award(user, 'user_first_media')
+            grant_award(user, 'user_media_1')
         case 5:
-            grant_award(user, 'user_5th_media')
+            grant_award(user, 'user_media_2')
         case 10:
-            grant_award(user, 'user_10th_media')
+            grant_award(user, 'user_media_3')
 
 
 def grant_user_comment_creation_awards(user: User):
@@ -98,8 +98,12 @@ def grant_user_comment_creation_awards(user: User):
 
     match total_comment_count:
         case 1:
-            grant_award(user, 'user_first_comment')
-        case 10:
-            grant_award(user, 'user_10th_comment')
+            grant_award(user, 'user_comment_1')
         case 25:
-            grant_award(user, 'user_25th_comment')
+            grant_award(user, 'user_comment_2')
+        case 50:
+            grant_award(user, 'user_comment_3')
+        case 100:
+            grant_award(user, 'user_comment_4')
+        case 200:
+            grant_award(user, 'user_comment_5')

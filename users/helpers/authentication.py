@@ -42,7 +42,7 @@ def approve_application(user: User):
     user.is_active = True
     
     # The user gets an Award for being approved:
-    grant_award(user, 'user_get_approved')
+    grant_award(user, 'user_approved_1')
 
     user.application.was_ever_reviewed = True
 
