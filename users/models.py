@@ -81,32 +81,6 @@ class UserAward(models.Model):
         return f"{self.user.username}'s Award: {self.type.name}"
 
 
-class Notification(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    text = models.CharField(_("Text"), max_length=128)
-    is_seen = models.BooleanField(_("Is seen"))
-    is_deleted = models.BooleanField(_("Is deleted"))
-
-    class Meta:
-        verbose_name = _("Notification")
-        verbose_name_plural = _("Notifications")
-
-    def __str__(self):
-        return f'<{self.user.profile.username} Notification>'
-    
-
-# class Friend(models.Model):
-#     user = models.ForeignKey(User, verbose_name='The User', related_name='friends', on_delete=models.CASCADE)
-#     friend = models.ForeignKey(User, verbose_name="The user's friend", on_delete=models.CASCADE)
-    
-#     class Meta:
-#         verbose_name = _("Friend")
-#         verbose_name_plural = _("Friends")
-
-#     def __str__(self):
-#         return f"{self.user.username}'s friend: {self.friend.username}"
-
-
 class RegistrationApplication(models.Model):
     """Registration Application model
 

@@ -180,10 +180,6 @@ def refresh_pfp(request: HttpRequest, slug: str):
     return redirect(reverse('user_edit', args=[slug]))
 
 
-def user_notifications(request: HttpRequest):
-    pass
-
-
 def register_page(request: HttpRequest):
     """The registration page."""
     if request.user.is_authenticated:
