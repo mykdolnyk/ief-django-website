@@ -21,7 +21,7 @@ class IsVisibleManager(models.Manager):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     bio = models.CharField('Bio', max_length=512, default='', blank=True)
-    signing = models.CharField('Signing', max_length=64, default='', blank=True)
+    signing = models.CharField('Signature', max_length=64, default='', blank=True)
     mcuuid = models.UUIDField('Minecraft UUID', editable=False)
     slug = models.SlugField(default='', null=False)
     pfp = models.ImageField('Profile picture', upload_to='users/pfps', null=True, blank=True)

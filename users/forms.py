@@ -126,7 +126,7 @@ class ProfileUpdateForm(forms.ModelForm):
             'bio': forms.Textarea(attrs={'rows': 3,
                                          'placeholder': "Tell us about yourself!"}),
             'signing': forms.Textarea(attrs={'rows': 3,
-                                             'placeholder': "You can enter your signing here. It will be automatically added to every post you made."})
+                                             'placeholder': "You can enter your signature here. It will be automatically added to every post you made."})
         }
 
 
