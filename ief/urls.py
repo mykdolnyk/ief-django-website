@@ -10,6 +10,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('user/', include('users.urls')),
     path('blog/', include('blogs.urls')),
+    path("notifications/", userviews.user_notification_list, name="user_notification_list"),
     
     
     path('', blogviews.index_page, name='index_page'),
