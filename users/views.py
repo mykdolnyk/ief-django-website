@@ -18,6 +18,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 
 from blogs.models import Blog
+from users.helpers import awards
 from .forms import ProfileCommentCreationForm, ProfileUpdateForm, UploadMediaForm, UserRegistrationForm, UserUpdateForm, UserPasswordChangeForm
 from .models import Notification, ProfileComment, ProfileMedia, User, UserAward, UserProfile
 from .helpers import users
@@ -41,7 +42,7 @@ def user_page(request: HttpRequest, slug: str):
     context = {
         'profile': profile,
         'media_list': ProfileMedia.objects.filter(profile=profile, is_visible=True)[:3], # TODO: periodical PFP update (caching)
-        'comments': ProfileComment.displayed_objects.filter(profile=profile),
+        'comments': ProfileComment.objects.filter(profile=profile),
         'comment_form': ProfileCommentCreationForm(),
         'request_user_is_subscribed': profile in request.user.profile.subscriptions.all(), # The current user is a subscriber of this user
         'subscribers': subscribers[:3],
@@ -68,6 +69,8 @@ def create_comment(request: HttpRequest, slug: str):
         new_comment.owner = request.user # The owner of the comment is the request user
 
         new_comment.save()
+        
+        awards.grant_user_comment_creation_awards(user=request.user)
         
     return redirect(reverse('user_page', args=(slug,)))
 
@@ -104,6 +107,7 @@ def user_subscribe(request: HttpRequest, slug: str):
     if profile not in request.user.profile.subscriptions.all():
         profile.subscribers.add(request.user.profile)
         response['action'] = 'add'
+        awards.grant_user_followers_awards(user=profile.user)
     else:
         profile.subscribers.remove(request.user.profile)
         response['action'] = 'remove'
@@ -165,6 +169,8 @@ def user_media_upload(request: HttpRequest, slug: str):
             new_media = form.save(commit=False)
             new_media.profile = profile
             new_media.save()
+            
+            awards.grant_user_media_creation_awards(request.user)
             
             return redirect(reverse('user_media_list', args=(slug,)))
     else:

@@ -16,8 +16,11 @@ class AbstractComment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
-    displayed_objects: DisplayedCommentsManager = DisplayedCommentsManager()
-    
+    objects: DisplayedCommentsManager = DisplayedCommentsManager()
+    # Queriesgb only visible comments
+    all_objects: models.Manager = models.Manager()
+    # Queries all comments
+
     def __str__(self):
         return f'<{self.owner.username}\'s Comment: {'not' if self.is_visible else ''} visible>'
 

@@ -10,6 +10,7 @@ from django.db.models import Count
 from blogs.forms import BlogCommentCreationForm, BlogEditForm
 from users.models import ProfileMedia, UserProfile
 from .models import Blog, BlogComment, Section
+from users.helpers import awards
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.list import ListView
@@ -77,7 +78,7 @@ def blog_section(request: HttpRequest, section: str):
 def blog_page(request: HttpRequest, section: str, blog: str):
     context = {
         'blog': get_object_or_404(Blog, slug=blog),
-        'comments': BlogComment.displayed_objects.filter(blog__slug=blog),
+        'comments': BlogComment.objects.filter(blog__slug=blog),
         'comment_form': BlogCommentCreationForm()
     }
     
@@ -102,6 +103,8 @@ def blog_create_comment(request: HttpRequest, section: str, blog: str):
 
         new_comment.save()
         
+        awards.grant_user_comment_creation_awards(user=request.user)
+        
     return redirect(reverse('blog_page', args=(section, blog,)))
 
 
@@ -116,10 +119,11 @@ def blog_like(request: HttpRequest, section: str, blog: str):
     if blog_instance not in request.user.liked_blogs.all():
         blog_instance.likes.add(request.user)
         response['action'] = 'add'
+        awards.grant_blog_likes_awards(user=blog_instance.author)
     else:
         blog_instance.likes.remove(request.user)
         response['action'] = 'remove'
-        
+                
     return JsonResponse(response)
 
 
@@ -156,7 +160,7 @@ def blog_create(request: HttpRequest):
             blog: Blog = form.save(commit=False)
             blog.author = request.user
             blog.save()
-            grant_blog_awards(user=request.user, blog=blog)
+            awards.grant_blog_creation_awards(user=request.user)
             return redirect(reverse('blog_page', args=(blog.section.slug, blog.slug,)))
 
     elif request.method == "GET":

@@ -28,7 +28,7 @@ class Blog(models.Model):
     slug = models.SlugField(default='')
     text = django_ckeditor_5.fields.CKEditor5Field(_("Text"), max_length=2048, config_name='extends')    
     section = models.ForeignKey(Section, verbose_name=_("Section"), on_delete=models.CASCADE)
-    author = models.ForeignKey(User, verbose_name=_("Author"), on_delete=models.CASCADE, related_name='blogs')
+    author = models.ForeignKey(User, verbose_name=_("Author"), on_delete=models.SET_NULL, null=True, related_name='blogs')
     likes = models.ManyToManyField(User, verbose_name=_("Like count"), related_name='liked_blogs')
     
     created_at = models.DateTimeField(auto_now_add=True)
@@ -41,7 +41,7 @@ class Blog(models.Model):
         # title, and then create 2 "test" titles.
         if not self._state.adding: 
             # Check if the record is being created or updated.
-            # It is needed to prevent the slug from changin on update
+            # It is needed to prevent the slug from changing on update
             return super().save(*args, **kwargs)
         
         new_slug = slugify(self.title).replace('_', '-')

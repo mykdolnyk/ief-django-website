@@ -1,9 +1,10 @@
 from django.contrib.auth.models import User
 from django.http import Http404
-from users.models import AwardType, RegistrationApplication, UserProfile
+from helpers.email import send_application_approval_email, send_application_rejection_email
+from users.models import AwardType, Notification, RegistrationApplication, UserProfile
 from users.helpers import mcuser
 from django.core.files.base import ContentFile
-
+from .awards import grant_award
 
 def register_user(form_data) -> User:
     """A function that takes form as an argument and registers the user. 
@@ -31,20 +32,24 @@ def register_user(form_data) -> User:
     return user
 
 
-def approve_user(user: User):
-    if user.application.status == 1:
-        raise ValueError('The user is already approved')
-    
+def approve_application(user: User):
     update_pfp(user.profile) # Create PFP
     user.is_active = True
-    user.application.status = 1 # The application is approved
     
     # The user gets an Award for being approved:
-    new_award = AwardType.objects.get(code='user_get_approved')
-    if new_award:
-        user.awards.create(type=new_award)
+    grant_award(user, 'user_get_approved')
+
+    user.application.was_ever_reviewed = True
 
     user.save()
+    
+    send_application_approval_email(user=user)
+    print('User approved!') # TODO: log that somewhere
+
+
+def reject_application(user: User):
+    send_application_rejection_email(user=user)
+    user.application.was_ever_reviewed = True
 
 
 def update_pfp(profile: UserProfile):

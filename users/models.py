@@ -8,16 +8,8 @@ from helpers.models import AbstractComment
 class UserProfileManager(models.Manager):
     """User manager class that implements some useful methods.
     """
-    def subscribers(self, of_user):
-        """A handy method that returns the queryset of Users that are subscribers of the `of_user` User.
-
-        Args:
-            of_user (UserProfile): An instance of the user profile
-
-        Returns:
-            QuerySet: set of Users that are subscribed to the `of_user` User.
-        """
-        return self.filter(subscriptions__id=of_user.pk)
+    def get_queryset(self):
+        return super().get_queryset().filter(user__is_active=True)
 
 
 class UserProfile(models.Model):
@@ -27,14 +19,26 @@ class UserProfile(models.Model):
     mcuuid = models.UUIDField('Minecraft UUID', editable=False)
     slug = models.SlugField(default='', null=False)
     pfp = models.ImageField('Profile picture', upload_to='users/pfps', null=True, blank=True)
-    subscriptions = models.ManyToManyField('self', blank=True, symmetrical=False)
+    subscriptions = models.ManyToManyField('self', blank=True, symmetrical=False, related_name='subscribers')
     
     objects: UserProfileManager = UserProfileManager()
+    """Model Manager that searches for profiles of active users only."""
+    all_objects = models.Manager()
+    """Model Manager that searches for all the profiles of users."""
+    
+    @property
+    def total_blog_likes(self):
+        like_count = self.user.blogs.aggregate(likes=models.Sum('likes'))['likes']
+        return like_count or 0
 
     def __str__(self):
         return f"{self.user.username}"
 
     def save(self, *args, **kwargs) -> None:
+        if not self._state.adding: 
+            # If the user has already been registered before
+            return super().save(*args, **kwargs)
+            
         self.slug = str(self.user.username).lower()
         self.mcuuid = username_to_mc_uuid(self.user.username)  # ? Implement caching as this stage
         return super().save(*args, **kwargs)
@@ -48,9 +52,8 @@ class ProfileMedia(models.Model):
     profile = models.ForeignKey(UserProfile, verbose_name='User Profile', related_name='media_list', on_delete=models.SET_NULL, null=True)
     image = models.ImageField('Profile Image', upload_to="users/profile_media/")
     title = models.CharField('Profile Media Title', max_length=32, null=True, blank=True)
-    type = models.SmallIntegerField('Media Type', default=0) # TODO: implement via models.TextChoices
-    # 0: photo, 1: video, 2: url photo, 3: url video
     is_visible = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     
 
 class AwardType(models.Model):
@@ -84,8 +87,8 @@ class Notification(models.Model):
         verbose_name_plural = _("Notifications")
 
     def __str__(self):
-        return f'<{self.user.profile.username} Notification>'
-    
+        return f'<{self.user.username} Notification>'
+
     
 class RegistrationApplication(models.Model):
     """Registration Application model
@@ -96,10 +99,16 @@ class RegistrationApplication(models.Model):
         models (SmallIntegerField): The application status
 
     """
+       
+    APPLICATION_STATUSES = {
+        0: 'Not Reviewed',
+        1: 'Approved',
+        2: 'Rejected'
+    }
     user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, related_name='application')
     text = models.CharField(_("Text"), max_length=256, blank=True)
-    status = models.SmallIntegerField('Application status', default=0) # TODO: implement via models.TextChoices
-    # 0: not reviewed, 1: approved, 2: denied
+    status = models.SmallIntegerField('Application status', default=0, choices=APPLICATION_STATUSES)
+    was_ever_reviewed = models.BooleanField('Was the Application ever reviewed?', default=False)
 
     class Meta:
         verbose_name = _("Application")
