@@ -1,2 +1,2 @@
 {% include 'parts/users/username_display.html' with user=comment.owner%}
-made a comment on your "<a href="{% url 'blog_page' comment.blog.section comment.blog.slug %}">{{comment.blog.title}}</a>" post: {{ comment.text|truncatewords:10|truncatechars:150 }}
+made a comment on your "<a href="{% url 'blog_page' comment.blog.section.slug comment.blog.slug %}">{{comment.blog.title}}</a>" post: {{ comment.text|truncatewords:10|truncatechars:150 }}
