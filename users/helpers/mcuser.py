@@ -1,3 +1,6 @@
+import io
+import PIL.Image
+import PIL.ImageFile
 import requests
 import base64
 import json
@@ -34,3 +37,35 @@ def get_minecraft_skin_url(uuid) -> str | None:
         url = None # or None if the user has no custom skin
     
     return url
+
+
+def create_pfp(uuid: str) -> bytes:
+    """A function that creates a Minecraft profile picture.
+
+    Args:
+        uuid (str): The Minecraft UUID string.
+
+    Returns:
+        bytes: Bytes representing the profile picture.
+    """
+
+    mc_skin_link = get_minecraft_skin_url(uuid)
+    
+    # Get the raw skin data and convert it
+    mc_skin_bytes = io.BytesIO(
+        requests.get(mc_skin_link).content
+        )
+
+    # Open it as an ImageFile object
+    mc_skin = PIL.Image.open(mc_skin_bytes)
+    pfp_layer_1 = mc_skin.crop((8, 8, 16, 16))
+    pfp_layer_2 = mc_skin.crop((40, 8, 48, 16))
+    
+    # Compose the pfp
+    pfp_final = PIL.Image.alpha_composite(pfp_layer_1, pfp_layer_2)
+    
+    # Convert to bytes
+    pfp_byte_array = io.BytesIO() # Create a byte array that will store the file
+    pfp_final.save(pfp_byte_array, format='PNG') # Save the PFP into that byte array
+
+    return pfp_byte_array.getvalue() # Get the value (bytes) from that array and return it
