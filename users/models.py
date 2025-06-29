@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 from users.helpers.mcuser import username_to_mc_uuid
 
-class UserManager(models.Manager):
+class UserProfileManager(models.Manager):
     """User manager class that implements some useful methods.
     """
     def subscribers(self, of_user):
@@ -28,7 +28,7 @@ class UserProfile(models.Model):
     pfp = models.ImageField('Profile picture', upload_to='users/pfps', null=True, blank=True)
     subscriptions = models.ManyToManyField('self', blank=True, symmetrical=False)
     
-    objects = UserManager()
+    objects: UserProfileManager = UserProfileManager()
 
     def __str__(self):
         return f"{self.user.username}"
@@ -44,7 +44,6 @@ class ProfileComment(models.Model):
     owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     text = models.CharField(max_length=512)
     is_visible = models.BooleanField(default=False)
-    
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -81,6 +80,21 @@ class UserAward(models.Model):
         return f"{self.user.username}'s Award: {self.type.name}"
 
 
+class Notification(models.Model):
+    user = models.ForeignKey(User, related_name='notifications', on_delete=models.CASCADE)
+    text = models.CharField(_("Text"), max_length=128)
+    is_seen = models.BooleanField(_("Is seen"), default=False)
+    is_deleted = models.BooleanField(_("Is deleted"), default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("Notification")
+        verbose_name_plural = _("Notifications")
+
+    def __str__(self):
+        return f'<{self.user.profile.username} Notification>'
+    
+    
 class RegistrationApplication(models.Model):
     """Registration Application model
 

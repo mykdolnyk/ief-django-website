@@ -15,6 +15,7 @@
                 <li>Hi, <a href={% url "user_page" user.profile.slug %}>{{ user.username }}!</a></li>
                 <li><a href={% url "user_edit" user.profile.slug %}>Edit Profile</a></li>
                 <li><a href={% url "logout_page" %}>Log Out</a></li> 
+                <li><a href={% url "user_notification_list" user.profile.slug %}>Notifications ({{ notification_count }})</a></li> 
             {% else %}
                 <li><a href={% url "login_page" %}>Log In</a></li>
                 <li><a href={% url "register_page" %}>Register</a></li> 

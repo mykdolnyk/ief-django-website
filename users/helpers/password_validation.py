@@ -14,4 +14,4 @@ class BlankCharactersValidator:
             )
         
     def get_help_text(self):
-        return _("Your password can’t contain blank characters.")
+        return _("Your password can't contain blank characters.")

@@ -1,0 +1,47 @@
+{% extends 'parts/base.html' %}
+
+{% block title %}Your Notifications{% endblock title %}
+
+
+{% block content %}
+
+<h1>Hey, {{ request.user.username }}!</h1>
+{% if not_seen_notifications %}
+    <h2>Here are your notifications:</h2>
+    <ul>
+        {% for notification in not_seen_notifications %}
+            <li>{{notification.text}}</li>
+        {% endfor %}
+    </ul>
+
+    <form action="" method="post">
+        <input type="submit" value="Seen">
+        <input type="hidden" name="action", value="update">
+        {% csrf_token %}
+    </form>
+
+{% else %}
+    <h2>There are no new notifictions for now, come back here later.</h2>
+{% endif %}
+
+{% if seen_notifications %}
+    <h2>Also, here are the some you have previously seen:</h2>
+    <form action="" method="post">
+
+        <ul>
+            {% for notification in seen_notifications %}
+                <li>
+                    {{notification.text}}
+                    <input type="checkbox" name="notification_{{notification.id}}">
+                </li>
+            {% endfor %}
+        </ul>
+
+        <input type="submit" value="Delete">
+        <input type="hidden" name="action", value="delete">
+        {% csrf_token %}
+    </form>
+
+{% endif %}
+
+{% endblock content %}

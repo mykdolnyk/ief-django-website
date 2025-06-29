@@ -1,16 +1,18 @@
 from typing import Any
 from django.db.models.query import QuerySet
+from django.forms import formset_factory
 from django.http import HttpResponseNotAllowed, HttpRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from .forms import ProfileCommentCreationForm, ProfileUpdateForm, UploadMediaForm, UserRegistrationForm, UserUpdateForm
-from .models import ProfileComment, ProfileMedia, User, UserAward, UserProfile
+from .models import Notification, ProfileComment, ProfileMedia, User, UserAward, UserProfile
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.list import ListView
 from .helpers import users
+from helpers import form_processing 
 from django.conf import settings
 
 
@@ -172,18 +174,7 @@ def user_media_delete(request: HttpRequest, slug):
     context = {"media_list": media_list}
     
     if request.method == "POST":
-        post_data = request.POST.dict()
-        post_data.pop('csrfmiddlewaretoken')
-        
-        # Parses the form data
-        media_to_delete = []
-        for raw_id in post_data.keys():
-            try:
-                media_id = int(raw_id.removeprefix('media_')) 
-                media_to_delete.append(media_id)
-            except ValueError:
-                # Invalid data (like string "media_noninteger") just gets ignored
-                pass
+        media_to_delete = form_processing.parse_bulk_delete_form(request, 'media_')
 
         for media_id in media_to_delete:
             try:
@@ -197,6 +188,41 @@ def user_media_delete(request: HttpRequest, slug):
 
     return render(request, 'users/profile/user_profile_media_delete.html', context=context)  
 
+
+@login_required(login_url=settings.LOGIN_PAGE_NAME)
+def user_notification_list(request: HttpRequest, slug):
+    if slug != request.user.profile.slug:
+        return redirect(reverse("user_notification_list", args=(request.user.profile.slug,)))
+
+    # Don't include deleted notifications
+    notifications = request.user.notifications.filter(is_deleted=False)
+
+    if request.method == "POST":
+        
+        if request.POST['action'] == "update":
+            # If 'Seen' was clicked
+            notifications.filter(is_seen=False).update(is_seen=True)
+
+        elif request.POST['action'] == "delete":
+            # If 'Delete' was clicked    
+            notifs_to_delete = form_processing.parse_bulk_delete_form(request, 'notification_')
+
+            for notif_id in notifs_to_delete:
+                try:
+                    notif: Notification = notifications.get(pk=notif_id)
+                    notif.is_deleted = True
+                    notif.save()
+                    
+                except Notification.DoesNotExist:
+                    # Request to remove a non-existent notification just gets ignored
+                    pass
+    
+    context = {
+        "not_seen_notifications": notifications.filter(is_seen=False),
+        "seen_notifications": notifications.filter(is_seen=True),
+    }
+    
+    return render(request, "users/notifications/user_notification_list.html", context)
 
 
 @login_required(login_url=settings.LOGIN_PAGE_NAME)
