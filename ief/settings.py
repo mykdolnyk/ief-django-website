@@ -246,6 +246,5 @@ CKEDITOR_5_CONFIGS = {
 }
 
 CKEDITOR_5_MAX_FILE_SIZE = 10
-
-# Define a constant in settings.py to specify file upload permissions
-CKEDITOR_5_FILE_UPLOAD_PERMISSION = "authenticated"  # Possible values: "staff", "authenticated", "any"
+CKEDITOR_5_FILE_STORAGE = "blogs.storage.BlogUploadsStorage"
+CKEDITOR_5_FILE_UPLOAD_PERMISSION = "authenticated" 

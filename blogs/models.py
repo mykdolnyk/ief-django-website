@@ -1,10 +1,8 @@
-from time import strftime
-from typing import Iterable
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 import django_ckeditor_5.fields
-from django.utils.text import slugify
+from slugify import slugify as python_slufigy
 
 from helpers.models import AbstractComment
 # Create your models here.
@@ -18,7 +16,7 @@ class Section(models.Model):
         return self.name
     
     def save(self, *args, **kwargs) -> None:
-        self.slug = slugify(self.name)
+        self.slug = python_slufigy(self.name)
         return super().save(*args, **kwargs)
 
 
@@ -29,7 +27,7 @@ class Blog(models.Model):
     text = django_ckeditor_5.fields.CKEditor5Field(_("Text"), max_length=2048, config_name='extends')    
     section = models.ForeignKey(Section, verbose_name=_("Section"), on_delete=models.CASCADE)
     author = models.ForeignKey(User, verbose_name=_("Author"), on_delete=models.SET_NULL, null=True, related_name='blogs')
-    likes = models.ManyToManyField(User, verbose_name=_("Like count"), related_name='liked_blogs')
+    likes = models.ManyToManyField(User, verbose_name=_("Like count"), related_name='liked_blogs', blank=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -44,7 +42,7 @@ class Blog(models.Model):
             # It is needed to prevent the slug from changing on update
             return super().save(*args, **kwargs)
         
-        new_slug = slugify(self.title).replace('_', '-')
+        new_slug = python_slufigy(self.title).replace('_', '-')
         
         # Check the number of duplicates
         duplicates = Blog.objects.filter(title__iexact=self.title).count()
@@ -58,12 +56,12 @@ class Blog(models.Model):
 class BlogComment(AbstractComment):
     blog = models.ForeignKey(Blog, verbose_name='Blog', on_delete=models.SET_NULL, null=True)
     
+# ! Remove it later 
+# class BlogMedia(models.Model):
     
-class BlogMedia(models.Model):
-    
-    blog = models.ForeignKey(Blog, verbose_name=_("Blog"), on_delete=models.CASCADE)
-    image = models.ImageField('Blog Image', upload_to="users/profile_media/")
-    title = models.CharField('Blog Media Title', max_length=32)
-    type = models.SmallIntegerField('Blog Type', default=0) # TODO: implement via models.TextChoices
-    # 0: photo, 1: video, 2: url photo, 3: url video
-    is_visible = models.BooleanField(default=True)
+#     blog = models.ForeignKey(Blog, verbose_name=_("Blog"), on_delete=models.CASCADE)
+#     image = models.ImageField('Blog Image', upload_to="users/profile_media/")
+#     title = models.CharField('Blog Media Title', max_length=32)
+#     type = models.SmallIntegerField('Blog Type', default=0) # TODO: implement via models.TextChoices
+#     # 0: photo, 1: video, 2: url photo, 3: url video
+#     is_visible = models.BooleanField(default=True)
