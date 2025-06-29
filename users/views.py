@@ -70,14 +70,10 @@ def create_comment(request: HttpRequest, slug: str):
     return redirect(reverse('user_page', args=(slug,)))
 
 
-def user_award_list(request: HttpRequest, slug: str):
-    profile: UserProfile = users.get_userprofile_or_404(slug)
-
-    awards = profile.user.awards.filter()
-    
-    context = {'awards': awards}
-
-    return render(request, 'users/profile/user_awards.html', context=context)
+class UserAwardList(LoginRequiredMixin, ListView):
+    model = UserAward
+    template_name = 'users/profile/user_awards.html'
+    login_url = settings.LOGIN_PAGE_NAME
 
 
 @login_required(login_url=settings.LOGIN_PAGE_NAME)
@@ -128,12 +124,27 @@ def user_media_list(request: HttpRequest, slug: str):
     profile = users.get_userprofile_or_404(slug)
 
     pass
+class UserMediaList(LoginRequiredMixin, ListView):
+    model = ...
+    template_name = 'users/profile/user_awards.html'
+    login_url = settings.LOGIN_PAGE_NAME
+
+
+def user_media_upload(request: HttpRequest, slug: str):
+    profile = users.get_userprofile_or_404(slug)
+
+    pass
 
 
 def user_post_list(request: HttpRequest, slug: str):
     profile = users.get_userprofile_or_404(slug)
 
     pass
+class UserPostList(LoginRequiredMixin, ListView):
+    model = ...
+    template_name = 'users/profile/user_awards.html'
+    login_url = settings.LOGIN_PAGE_NAME
+    
 
 @login_required(login_url=settings.LOGIN_PAGE_NAME)
 def user_edit(request: HttpRequest, slug: str):
