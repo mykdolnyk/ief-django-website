@@ -6,7 +6,7 @@ from django.conf.urls.static import static
 from django.conf import settings
 from django.views.generic import TemplateView
 from django.contrib.auth.decorators import login_not_required
-
+from django.views.decorators.cache import cache_page
 
 urlpatterns = [
     path('', blogviews.index_page, name='index_page'),
@@ -25,7 +25,7 @@ urlpatterns = [
     path('reset_password_confirm/<uidb64>/<token>/', userviews.PasswordResetConfirm.as_view(), name='reset_password_confirm'),
 
     path('about/', blogviews.AboutPage.as_view(), name='about_page'),
-    path('legal/', login_not_required(TemplateView.as_view(template_name='blogs/legal.html')), name='legal_page'),
+    path('legal/', cache_page(3600)(login_not_required(TemplateView.as_view(template_name='blogs/legal.html'))), name='legal_page'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
