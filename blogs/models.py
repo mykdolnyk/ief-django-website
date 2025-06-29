@@ -28,8 +28,8 @@ class Blog(models.Model):
     slug = models.SlugField(default='')
     text = django_ckeditor_5.fields.CKEditor5Field(_("Text"), max_length=2048, config_name='extends')    
     section = models.ForeignKey(Section, verbose_name=_("Section"), on_delete=models.CASCADE)
-    author = models.ForeignKey(User, verbose_name=_("Author"), on_delete=models.CASCADE)
-    likes = models.IntegerField(_("Like count"), default=0)
+    author = models.ForeignKey(User, verbose_name=_("Author"), on_delete=models.CASCADE, related_name='blogs')
+    likes = models.ManyToManyField(User, verbose_name=_("Like count"), related_name='liked_blogs')
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

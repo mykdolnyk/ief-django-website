@@ -1,0 +1,13 @@
+{% extends 'parts/base.html' %}
+
+{% block title %}Update Your Existing Post{% endblock title %}
+
+{% block content %}
+    {{ form.media }}
+    <form action="" method="post">
+        {{ form }}
+        {% csrf_token %}
+        <input type="submit" value="Update.">
+    </form>
+
+{% endblock content %}

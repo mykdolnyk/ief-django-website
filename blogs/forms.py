@@ -13,6 +13,18 @@ class BlogCreationForm(forms.ModelForm):
                   attrs={"class": "django_ckeditor_5"}, config_name="extends"
               )
           }
+        
+
+class BlogEditForm(forms.ModelForm):
+    
+    class Meta:
+        model = models.Blog
+        fields = ('text', 'section')
+        widgets = {
+              "text": CKEditor5Widget(
+                  attrs={"class": "django_ckeditor_5"}, config_name="extends"
+              )
+          }
 
 
 class BlogCommentCreationForm(forms.ModelForm):

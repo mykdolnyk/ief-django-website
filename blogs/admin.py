@@ -10,7 +10,7 @@ class SectionAdmin(admin.ModelAdmin):
 
 class BlogAdmin(admin.ModelAdmin):
     model = models.Blog
-    list_display = ('title', 'likes', 'slug')
+    list_display = ('title', 'slug')
 
 
 admin.site.register(models.Section, SectionAdmin)
