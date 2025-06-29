@@ -1,0 +1,39 @@
+{% extends 'parts/base.html' %}
+
+{% block title %}{{ profile.user.username }} Profile{% endblock title %}
+
+
+{% block content %}
+    <h1>{{ profile.user.username }}</h1>
+    <img src="{{ profile.pfp.url }}" alt="{{ profile.user.username }} Profile Picture" style="border: 1px solid black; width: 120px; image-rendering: pixelated;">
+    <h3>My Bio:</h3> 
+    <p>{{ profile.bio }}</p>
+
+    <h3>My Pics:</h3>
+    {% for pic in profile.media_list.filter %}
+        <ul>
+            <li>{{ pic.title }}</li>
+        </ul>
+    {% empty %}
+        None yet...
+    {% endfor %}
+
+    <h3>My Awards:</h3>
+    {% for award in profile.user.awards.filter %}
+        <ul>
+            <li>{{ award.award.name }}</li>
+        </ul>
+    {% empty %}
+        None yet...
+    {% endfor %}
+
+    <h3>My Signing:</h3>
+        <p>{{ profile.signing }}</p>
+
+    <h2>Comments:</h2>
+
+    {% for comment in comments %}
+    
+    {% endfor %}
+
+{% endblock content %}

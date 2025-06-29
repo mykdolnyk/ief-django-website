@@ -6,10 +6,11 @@ from users.helpers.mcuser import username_to_mc_uuid
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    bio = models.CharField('Bio', max_length=512, default='')
-    signing = models.CharField('Signing', max_length=64, default='')
+    bio = models.CharField('Bio', max_length=512, default='', blank=True)
+    signing = models.CharField('Signing', max_length=64, default='', blank=True)
     mcuuid = models.UUIDField('Minecraft UUID', editable=False)
     slug = models.SlugField(default='', null=False)
+    pfp = models.ImageField('Profile picture', upload_to='pfps', null=True, blank=True)
     
     def __str__(self):
         return f"{self.user.username}'s Profile"
@@ -30,10 +31,9 @@ class ProfileComment(models.Model):
     
     
 class ProfileMedia(models.Model):
-    
-    profile = models.ForeignKey(UserProfile, verbose_name='User Profile', on_delete=models.SET_NULL, null=True)
+    profile = models.ForeignKey(UserProfile, verbose_name='User Profile', related_name='media_list',  on_delete=models.SET_NULL, null=True)
     image = models.ImageField('Profile Image', upload_to="users/profile_media/")
-    title = models.CharField('Profile Media Title', max_length=32)
+    title = models.CharField('Profile Media Title', max_length=32, null=True)
     type = models.SmallIntegerField('Media Type', default=0) # TODO: implement via models.TextChoices
     # 0: photo, 1: video, 2: url photo, 3: url video
     is_visible = models.BooleanField(default=True)
@@ -46,7 +46,7 @@ class Award(models.Model):
 
 
 class UserAward(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='awards')
     award = models.ForeignKey(Award, on_delete=models.CASCADE)
 
 
@@ -86,7 +86,7 @@ class RegistrationApplication(models.Model):
 
     """
     user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, related_name='application')
-    text = models.CharField(_("Text"), max_length=256)
+    text = models.CharField(_("Text"), max_length=256, blank=True)
     status = models.SmallIntegerField('Application status', default=0) # TODO: implement via models.TextChoices
     # 0: not reviewed, 1: approved, 2: denied
 

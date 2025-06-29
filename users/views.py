@@ -8,14 +8,17 @@ from .models import User, UserProfile
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.list import ListView
-from .helpers import users
+from .helpers import users, mcuser
+from django.core.files.base import ContentFile
+from django.conf import settings
 
-# Create your views here.
 
-class UserListView(ListView):
+class UserListView(LoginRequiredMixin, ListView):
     model = User
     template_name = 'users/user_list.html'
+    login_url = settings.LOGIN_PAGE_NAME
     
     def get_queryset(self) -> QuerySet[Any]:
         # The queryset excludes users that are inactive or do not have a profile
@@ -24,14 +27,25 @@ class UserListView(ListView):
         
         return queryset
     
-
+    
+@login_required(login_url=settings.LOGIN_PAGE_NAME)
 def user_page(request: HttpRequest, slug: str):
     try:
         profile = UserProfile.objects.get(slug=slug.lower())
     except UserProfile.DoesNotExist:
         raise Http404()
     
-    return HttpResponse(profile.user.username)
+    context = {'profile': profile} 
+
+    # TODO: periodical PFP update (caching)   
+    if not profile.pfp:
+        pfp = mcuser.create_pfp(profile.mcuuid)
+        pfp = ContentFile(pfp)
+        
+        profile.pfp.save(name=f'{profile.slug}.png', content=pfp)
+        # profile.save()
+
+    return render(request, 'users/profile/user_page.html', context)
 
 
 def user_award_list(request: HttpRequest, id: int):
@@ -112,7 +126,7 @@ def login_page(request: HttpRequest):
     return render(request, 'users/logreg/login_page.html', context=context)
     
     
-@login_required
+@login_required(login_url=settings.LOGIN_PAGE_NAME)
 def logout_page(request: HttpRequest):
     context = {}
     
