@@ -2,7 +2,6 @@ from django.conf import settings
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
-# from .tasks import send_email_to_user
 
 def send_email_to_user(email_message: EmailMessage, user:User=None):
     """Send an email to the user's email address set in the account.
@@ -19,25 +18,21 @@ def send_email_to_user(email_message: EmailMessage, user:User=None):
     return email.send()
 
 
-def send_registration_confirmation_email(user: User):
+def compose_and_send_email(user_id: int, subject: str, template_name: str, extra_context=None):
+    """Get the User ID, subject of the email and the name of the template that
+    containts the email. The `User` and `settings` instances are included in 
+    the context by default."""
+    
+    if extra_context is None:
+        extra_context = {}
+    
+    user = User.objects.get(pk=user_id)
+    
     context = {'settings': settings,
-               'user': user}
-    email = EmailMessage("Your Application has been Submitted",
-                         render_to_string('email/application_submitted.html', context=context))
-    send_email_to_user.delay(email_message=email, user=user)
-
-
-def send_application_approval_email(user: User):
-    context = {'settings': settings,
-               'user': user}
-    email = EmailMessage("Your Application has been Approved",
-                         render_to_string('email/application_approved.html', context=context))
-    send_email_to_user.delay(email_message=email, user=user).delay()
-
-
-def send_application_rejection_email(user: User):
-    context = {'settings': settings,
-               'user': user}
-    email = EmailMessage("Your Application has been Rejected",
-                         render_to_string('email/application_rejected.html', context=context))
-    send_email_to_user.delay(email_message=email, user=user).delay()
+               'user': user,
+               **extra_context}
+    
+    email = EmailMessage(subject=subject, 
+                         body=render_to_string(template_name=template_name, context=context))
+    
+    send_email_to_user(email_message=email, user=user)

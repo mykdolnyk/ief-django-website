@@ -20,7 +20,8 @@ from users.helpers.notifications import notify_about_comment
 from .forms import ProfileCommentCreationForm, ProfileUpdateForm, UploadMediaForm, UserAuthenticationForm, UserRegistrationForm, UserUpdateForm, UserPasswordChangeForm
 from .models import Notification, ProfileComment, ProfileMedia, User, UserAward, UserProfile
 from .helpers import users
-from common import form_processing, email
+from common import form_processing
+from users import tasks
 
 import logging
 
@@ -375,8 +376,8 @@ def register_page(request: HttpRequest):
         if form.is_valid():
             # Save the User, the Application and Profile instances
             try:
-                user = users.register_user(form)
-                email.send_registration_confirmation_email(user=user)
+                user: User = users.register_user(form)
+                tasks.send_registration_confirmation_email.delay(user.pk)
 
                 if settings.APPLICATIONS_APPROVE_AUTOMATICALLY:
                     user.application.status = 1 # In this case, the signal doesn't approve the user automatically

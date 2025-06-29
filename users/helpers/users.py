@@ -1,7 +1,7 @@
 import logging
 from django.contrib.auth.models import User
 from django.http import Http404, HttpRequest
-from common.email import send_application_approval_email, send_application_rejection_email
+from users import tasks
 from users.models import RegistrationApplication, UserProfile
 from users.helpers import mcuser
 from django.core.files.base import ContentFile
@@ -47,7 +47,7 @@ def approve_application(user: User):
 
     user.save()
     
-    send_application_approval_email(user=user)
+    tasks.send_application_approval_email.delay(user.pk)
     
     info_to_log = user.__dict__.copy()
     info_to_log.pop('password')
@@ -56,7 +56,7 @@ def approve_application(user: User):
 
 
 def reject_application(user: User):
-    send_application_rejection_email(user=user)
+    tasks.send_application_rejection_email.delay(user.pk)
     user.application.was_ever_reviewed = True
 
 
