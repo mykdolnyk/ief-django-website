@@ -9,7 +9,16 @@ from .forms import UserRegistrationForm
 
 class UserProfileInline(admin.TabularInline):
     model = UserProfile
-
+    def get_queryset(self, request):
+        # Use all_objects manager that allows to see `is_visible=False` profiles
+        queryset = self.model.all_objects.get_queryset()
+        
+        # From the super method that I don't call here:
+        ordering = self.ordering or ()
+        if ordering:
+            queryset = queryset.order_by(*ordering)
+            
+        return queryset
 
 class RegistrationApplicationInline(admin.TabularInline):
     model = RegistrationApplication

@@ -1,4 +1,4 @@
-{% if user.is_active %}
+{% if user.is_active and user.profile.is_visible %}
 <a href="{% url 'user_page' user.profile.slug %}"><img src="{{ user.profile.pfp.url }}" alt="{{ user.username }}'s Profile Picture" class="pfp-inline">
 {{ user.username }}</a>
 {% else %}

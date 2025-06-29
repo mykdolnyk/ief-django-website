@@ -59,7 +59,7 @@ def update_every_pfp_task(delay=5):
     Args:
         delay (int, optional): Period (in seconds) between every single PFP update. Defaults to 5.
     """
-    active_user_profiles = UserProfile.objects.filter(user__is_active=True)
+    active_user_profiles = UserProfile.objects.filter()
     
     for index, profile in enumerate(active_user_profiles):
         # Queue all the tasks, make them run one by one every `delay` seconds

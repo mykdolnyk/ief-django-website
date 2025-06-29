@@ -40,6 +40,7 @@
     </header>
 
     <nav class="sidebar">
+        {% if request.user.profile.is_visible %}
         <ul>
             <li>
             <a class="icon-link" href="{% url 'user_page' request.user.profile.slug %}">
@@ -73,7 +74,7 @@
                 </a>
             </li>
         </ul>
-
+        {% endif %}
         <p class="about-block">Learn more about the project <a href="{% url 'about_page' %}">here</a></p>
     </nav>
             

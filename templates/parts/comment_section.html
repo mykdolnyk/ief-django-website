@@ -10,7 +10,7 @@
         {% if comment.is_visible %}
             <div class="card comment-card">
                 <div>
-                    {% if comment.owner.username %}
+                    {% if comment.owner.username and comment.owner.profile.is_visible %}
                         <img src="{{ comment.owner.profile.pfp.url }}" alt="{{ comment.owner.username }}'s Profile Picture" class="pfp">
                         <p class="author"><a href="{% url 'user_page' comment.owner.profile.slug %}">{{ comment.owner.username }}</a></p>
                     {% else %}

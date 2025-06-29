@@ -9,7 +9,7 @@ from common.models import AbstractComment
 class UserProfileManager(models.Manager):
     """User manager class that implements some useful methods"""
     def get_queryset(self):
-        return super().get_queryset().filter(user__is_active=True)
+        return super().get_queryset().filter(user__is_active=True).filter(is_visible=True)
 
 
 class UserProfile(models.Model):
@@ -21,10 +21,13 @@ class UserProfile(models.Model):
     pfp = models.ImageField('Profile picture', upload_to='users/pfps', null=True, blank=True)
     subscriptions = models.ManyToManyField('self', blank=True, symmetrical=False, related_name='subscribers')
     
+    is_visible = models.BooleanField('Is profile visible', default=True)
+    
     objects: UserProfileManager = UserProfileManager()
-    """Model Manager that searches for profiles of active users only."""
+    """Model Manager that searches for visible profiles of active users only."""
     all_objects = models.Manager()
     """Model Manager that searches for all the profiles of users."""
+    
     
     @property
     def total_blog_likes(self):
