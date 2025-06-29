@@ -72,8 +72,15 @@ def create_comment(request: HttpRequest, slug: str):
 
 class UserAwardList(LoginRequiredMixin, ListView):
     model = UserAward
+    
+    context_object_name = 'awards'
     template_name = 'users/profile/user_awards.html'
     login_url = settings.LOGIN_PAGE_NAME
+
+    def get_queryset(self) -> QuerySet[Any]:
+        # Get only the awards of the user that is being checked
+        user = users.get_userprofile_or_404(self.kwargs["slug"]).user
+        return UserAward.objects.filter(user=user)
 
 
 @login_required(login_url=settings.LOGIN_PAGE_NAME)
