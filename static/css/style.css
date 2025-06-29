@@ -1589,6 +1589,7 @@ input[form='media-delete-form'] {
     background-color: rgb(105, 0, 0);
     display: flex;
     flex-direction: column;
+    gap: 10px;
 
     width: 1fr;
     height: fit-content;
