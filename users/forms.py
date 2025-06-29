@@ -2,12 +2,12 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm
 import common.forms
 
 from users.models import ProfileComment, ProfileMedia, UserProfile
 from .helpers import mcuser
-
+from users import tasks
 
 class UserRegistrationForm(forms.ModelForm):
 
@@ -216,3 +216,19 @@ class UploadMediaForm(forms.ModelForm):
             'image': '',
             'title': 'Image Title',
         }
+
+
+class PasswordResetEmailForm(PasswordResetForm):
+    """Password Reset Email Form with `send_mail` method remade for using Celery."""
+    def send_mail(self, subject_template_name, email_template_name,
+                  context, from_email, to_email, html_email_template_name = ...):
+        
+        context['user'] = context["user"].id # "pack" the user into an ID
+        
+        # Some witchcraft to pass the settings obj into the task:
+        if context['settings'] is settings:
+            context['settings'] = True
+        
+        tasks.send_password_reset_email.delay(
+            subject_template_name, email_template_name,
+            context, from_email, to_email, html_email_template_name)

@@ -23,7 +23,7 @@ urlpatterns = [
     path('register/', userviews.register_page, name='register_page'),
     path('logout/', userviews.logout_page, name='logout_page'),
     path('reset_password/', userviews.PasswordReset.as_view(), name='reset_password'),
-    path('reset_password_confirm/<uidb64>/<token>/', userviews.PasswordResetConfirm.as_view(), name='reset_password_confirm'),
+    path('reset_password_confirm/<uidb64>/<token>/', login_not_required(userviews.PasswordResetConfirm.as_view()), name='reset_password_confirm'),
 
     path('about/', blogviews.AboutPage.as_view(), name='about_page'),
     path('legal/', cache_page(3600)(login_not_required(TemplateView.as_view(template_name='blogs/legal.html'))), name='legal_page'),

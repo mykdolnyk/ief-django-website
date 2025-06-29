@@ -11,13 +11,12 @@ from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmVie
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.cache import cache
 from django.conf import settings
 
 from blogs.models import Blog
 from users.helpers import awards
 from users.helpers.notifications import notify_about_comment
-from .forms import ProfileCommentCreationForm, ProfileUpdateForm, UploadMediaForm, UserAuthenticationForm, UserRegistrationForm, UserUpdateForm, UserPasswordChangeForm
+from .forms import PasswordResetEmailForm, ProfileCommentCreationForm, ProfileUpdateForm, UploadMediaForm, UserAuthenticationForm, UserRegistrationForm, UserUpdateForm, UserPasswordChangeForm
 from .models import Notification, ProfileComment, ProfileMedia, User, UserAward, UserProfile
 from .helpers import users
 from common import form_processing
@@ -478,6 +477,10 @@ class PasswordReset(SuccessMessageMixin, PasswordResetView):
 
     success_url = '/'
     success_message = "The password reset email will be sent out to your mailbox shortly."
+    
+    form_class = PasswordResetEmailForm
+    extra_email_context = {'settings': settings}
+    
 
     def post(self, request, *args, **kwargs):
         restricter = users.AttemptRestricter(request, 'password_reset',
