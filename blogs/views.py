@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.db.models import Count
 
 from blogs.forms import BlogCommentCreationForm, BlogEditForm
+from users.helpers.notifications import notify_about_comment
 from users.models import ProfileMedia, UserProfile
 from .models import Blog, BlogComment, Section
 from users.helpers import awards
@@ -16,7 +17,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.list import ListView
 from django.views.generic import TemplateView
 
-@login_required(login_url=settings.LOGIN_PAGE_NAME)
 def index_page(request: HttpRequest):
     # Get Top 3 users by Blog count
     top_players = UserProfile.objects.annotate(count=Count('user__blogs')).order_by('-count')[:3]
@@ -53,7 +53,6 @@ def index_page(request: HttpRequest):
     return render(request, 'blogs/index_page.html', context=context)
 
 
-@login_required(login_url=settings.LOGIN_PAGE_NAME)
 def blog_list(request: HttpRequest):
     context = {
         'sections': Section.objects.filter(),
@@ -63,7 +62,6 @@ def blog_list(request: HttpRequest):
     return render(request, 'blogs/blog_list.html', context=context)
 
 
-@login_required(login_url=settings.LOGIN_PAGE_NAME)
 def blog_section(request: HttpRequest, section: str):
     context = {
         'sections': Section.objects.filter(),
@@ -74,7 +72,6 @@ def blog_section(request: HttpRequest, section: str):
     return render(request, 'blogs/blog_section.html', context=context)
 
 
-@login_required(login_url=settings.LOGIN_PAGE_NAME)
 def blog_page(request: HttpRequest, section: str, blog: str):
     context = {
         'blog': get_object_or_404(Blog, slug=blog),
@@ -85,7 +82,6 @@ def blog_page(request: HttpRequest, section: str, blog: str):
     return render(request, 'blogs/blog_page.html', context=context)
 
 
-@login_required(login_url=settings.LOGIN_PAGE_NAME)
 def blog_create_comment(request: HttpRequest, section: str, blog: str):
     if request.method != 'POST':   
         return HttpResponseNotAllowed()
@@ -108,7 +104,6 @@ def blog_create_comment(request: HttpRequest, section: str, blog: str):
     return redirect(reverse('blog_page', args=(section, blog,)))
 
 
-@login_required(login_url=settings.LOGIN_PAGE_NAME)
 def blog_like(request: HttpRequest, section: str, blog: str):
     blog_instance: Blog = get_object_or_404(Blog, slug=blog)
     
@@ -127,7 +122,6 @@ def blog_like(request: HttpRequest, section: str, blog: str):
     return JsonResponse(response)
 
 
-@login_required(login_url=settings.LOGIN_PAGE_NAME)
 def blog_edit(request: HttpRequest, section: str, blog: str):
     # ! Prevent other users from accessing the views (either hardcode
     # ! one user or use permissions)
@@ -151,7 +145,6 @@ def blog_edit(request: HttpRequest, section: str, blog: str):
     return render(request, 'blogs/blog_edit_page.html', context)
 
 
-@login_required(login_url=settings.LOGIN_PAGE_NAME)
 def blog_create(request: HttpRequest):
     if request.method == "POST":
         form = BlogEditForm(request.POST)
@@ -172,14 +165,14 @@ def blog_create(request: HttpRequest):
     return render(request, 'blogs/blog_edit_page.html', context)
 
 
-class AllMediaList(LoginRequiredMixin, ListView):
+class AllMediaList(ListView):
     model = ProfileMedia
     context_object_name = 'media_list'
     template_name = 'blogs/all_profile_media_list.html'
     login_url = settings.LOGIN_PAGE_NAME
 
 
-class AboutPage(LoginRequiredMixin, TemplateView):
+class AboutPage(TemplateView):
     template_name = 'blogs/about.html'
     login_url = settings.LOGIN_PAGE_NAME
     

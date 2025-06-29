@@ -29,7 +29,6 @@ class UserListView(LoginRequiredMixin, ListView):
     login_url = settings.LOGIN_PAGE_NAME
     
 
-@login_required(login_url=settings.LOGIN_PAGE_NAME)
 def user_page(request: HttpRequest, slug: str):
     profile: UserProfile = users.get_userprofile_or_404(slug)
 
@@ -50,7 +49,6 @@ def user_page(request: HttpRequest, slug: str):
     return render(request, 'users/profile/user_page.html', context)
 
 
-@login_required(login_url=settings.LOGIN_PAGE_NAME)
 def create_comment(request: HttpRequest, slug: str):
     if request.method != 'POST':   
         return HttpResponseNotAllowed()
@@ -73,7 +71,7 @@ def create_comment(request: HttpRequest, slug: str):
     return redirect(reverse('user_page', args=(slug,)))
 
 
-class UserAwardList(LoginRequiredMixin, ListView):
+class UserAwardList(ListView):
     model = UserAward
     
     context_object_name = 'awards'
@@ -91,7 +89,6 @@ class UserAwardList(LoginRequiredMixin, ListView):
         return new_context
 
 
-@login_required(login_url=settings.LOGIN_PAGE_NAME)
 def user_subscribe(request: HttpRequest, slug: str):
     """A view that is responsible for creating and deleting
     subscription instances on POST."""
@@ -112,7 +109,6 @@ def user_subscribe(request: HttpRequest, slug: str):
     return JsonResponse(response)
 
 
-@login_required(login_url=settings.LOGIN_PAGE_NAME)
 def user_followings(request: HttpRequest, slug: str):
     """A view that is responsible for showing a subscription and subscriber lists on GET."""
     profile = users.get_userprofile_or_404(slug)
@@ -127,7 +123,7 @@ def user_followings(request: HttpRequest, slug: str):
     return render(request, 'users/profile/user_followings.html', context=context)
 
 
-class UserMediaList(LoginRequiredMixin, ListView):
+class UserMediaList(ListView):
     model = ProfileMedia
     template_name = 'users/profile/user_profile_media_list.html'
     login_url = settings.LOGIN_PAGE_NAME
@@ -144,14 +140,13 @@ class UserMediaList(LoginRequiredMixin, ListView):
         return new_context
     
 
-class UserMediaDetail(LoginRequiredMixin, DetailView):
+class UserMediaDetail(DetailView):
     model = ProfileMedia
     template_name = 'users/profile/user_profile_media_detail.html'
     login_url = settings.LOGIN_PAGE_NAME
     context_object_name = 'media'
 
 
-@login_required(login_url=settings.LOGIN_PAGE_NAME)
 def user_media_upload(request: HttpRequest, slug: str):
     profile = users.get_userprofile_or_404(slug)
     
@@ -181,7 +176,6 @@ def user_media_upload(request: HttpRequest, slug: str):
     return render(request, 'parts/general_form_page.html', context=context)  
 
 
-@login_required(login_url=settings.LOGIN_PAGE_NAME)
 def user_media_delete(request: HttpRequest, slug):
     profile: UserProfile = users.get_userprofile_or_404(slug)
     
@@ -205,7 +199,6 @@ def user_media_delete(request: HttpRequest, slug):
     return render(request, 'users/profile/user_profile_media_delete.html', context=context)  
 
 
-@login_required(login_url=settings.LOGIN_PAGE_NAME)
 def user_notification_list(request: HttpRequest):
     # Don't include deleted notifications
     notifications = request.user.notifications.filter(is_deleted=False)
@@ -238,7 +231,7 @@ def user_notification_list(request: HttpRequest):
     return render(request, "users/notifications/user_notification_list.html", context)
 
 
-class UserBlogList(LoginRequiredMixin, ListView):
+class UserBlogList(ListView):
     model = Blog
     template_name = 'users/profile/user_blogs.html'
     login_url = settings.LOGIN_PAGE_NAME
@@ -254,7 +247,6 @@ class UserBlogList(LoginRequiredMixin, ListView):
         return context
     
 
-@login_required(login_url=settings.LOGIN_PAGE_NAME)
 def user_edit(request: HttpRequest, slug: str):
     # if UserProfile.objects.get(slug=slug).user.id != request.user.id:
     if request.user.profile.slug != slug:
@@ -310,7 +302,6 @@ def user_edit(request: HttpRequest, slug: str):
     return render(request, 'users/profile/user_edit_page.html', context)
 
 
-@login_required(login_url=settings.LOGIN_PAGE_NAME)
 def refresh_pfp(request: HttpRequest, slug: str):
     profile = users.get_userprofile_or_404(slug)
     
@@ -327,7 +318,7 @@ def refresh_pfp(request: HttpRequest, slug: str):
     return redirect(reverse('user_edit', args=[slug]))
 
 
-class TimelinePage(LoginRequiredMixin, ListView):
+class TimelinePage(ListView):
     template_name = 'users/timeline.html'
     context_object_name = 'blogs'
     login_url = settings.LOGIN_PAGE_NAME
@@ -337,6 +328,7 @@ class TimelinePage(LoginRequiredMixin, ListView):
             author__profile__in=self.request.user.profile.subscriptions.all()).order_by('-created_at')[:50]
 
 
+@login_not_required
 def register_page(request: HttpRequest):
     """The registration page."""
     if request.user.is_authenticated:
@@ -373,6 +365,7 @@ def register_page(request: HttpRequest):
     return render(request, 'users/logreg/register_page.html', context=context)
 
 
+@login_not_required
 def login_page(request: HttpRequest):
     if request.user.is_authenticated:
         return redirect(reverse('logout_page'))
@@ -403,7 +396,6 @@ def login_page(request: HttpRequest):
     return render(request, 'users/logreg/login_page.html', context=context)
 
 
-@login_required(login_url=settings.LOGIN_PAGE_NAME)
 def logout_page(request: HttpRequest):
     context = {}
 

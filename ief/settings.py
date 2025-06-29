@@ -50,6 +50,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    "django.contrib.auth.middleware.LoginRequiredMiddleware",
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -151,6 +152,7 @@ EMAIL_PORT = 587
 DEFAULT_FROM_EMAIL = f'Igni et Ferro <{EMAIL_HOST_USER}>'
 
 LOGIN_PAGE_NAME = 'login_page'
+LOGIN_URL = '/login/'
 
 ############## CKEDITOR SETTINGS ##############
 
