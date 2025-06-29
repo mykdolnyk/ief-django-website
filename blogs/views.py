@@ -2,7 +2,6 @@ from django.conf import settings
 from django.http import HttpRequest, HttpResponse, HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.contrib.auth.decorators import login_required
 import random
 from django.contrib import messages
 from django.db.models import Count
@@ -13,7 +12,6 @@ from users.models import ProfileMedia, UserProfile
 from .models import Blog, BlogComment, Section
 from users.helpers import awards
 
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.list import ListView
 from django.views.generic import TemplateView
 
