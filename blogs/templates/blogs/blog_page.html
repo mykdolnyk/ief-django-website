@@ -28,7 +28,10 @@
     </div>
 
     <div class='background ck-content blog-text-box'>
-        {{ blog.text|safe }}     
+        {{ blog.text|safe }}   
+        {% if blog.author.profile.signing %}
+        <p class="blog-signing background-inside">— {{blog.author.profile.signing}}</p>
+        {% endif %}
     </div>
 
     {% include 'parts/blogs/blog_comment_section.html' with comments=comments %}

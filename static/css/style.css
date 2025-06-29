@@ -903,6 +903,13 @@ div:has(#id_password1) {
     gap: 10px;
 }
 
+.blog-signing { 
+    font-style: italic;
+    margin: 2rem 0rem 0rem 1rem;
+    padding: 1rem;
+    color: var(--info-font-color);
+}
+
 /* Blog Edit Page */
 
 .blog-edit-form > div:not(:has(.ck-editor-container)) {
@@ -1243,11 +1250,11 @@ a.more-button-big {
 
 /* User Signing */
 
-.user-signing {
+.user-signing-box {
     height: 100%;
 }
 
-.user-signing p {
+.user-signing-box p {
     text-wrap: wrap;
 
     height: min-content;
