@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.db.models import Count
 
 from blogs.forms import BlogCommentCreationForm, BlogEditForm
-from users.helpers.notifications import notify_about_comment
+from users.helpers import notifications
 from users.models import ProfileMedia, UserProfile
 from .models import Blog, BlogComment, Section
 from users.helpers import awards
@@ -97,7 +97,7 @@ def blog_create_comment(request: HttpRequest, section: str, blog: str):
 
         new_comment.save()
 
-        notify_about_comment(new_comment)
+        notifications.send_comment_notification(new_comment)
 
         awards.grant_user_comment_creation_awards(user=request.user)
         
@@ -113,10 +113,13 @@ def blog_like(request: HttpRequest, section: str, blog: str):
     
     if blog_instance not in request.user.liked_blogs.all():
         blog_instance.likes.add(request.user)
+        notifications.send_like_notification(blog_instance, request.user)
         response['action'] = 'add'
+        
         awards.grant_blog_likes_awards(user=blog_instance.author)
     else:
         blog_instance.likes.remove(request.user)
+        notifications.remove_like_notification(blog_instance, request.user)
         response['action'] = 'remove'
                 
     return JsonResponse(response)

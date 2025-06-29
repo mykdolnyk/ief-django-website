@@ -15,7 +15,7 @@ from django.conf import settings
 
 from blogs.models import Blog
 from users.helpers import awards
-from users.helpers.notifications import notify_about_comment
+from users.helpers import notifications
 from .forms import PasswordResetEmailForm, ProfileCommentCreationForm, ProfileUpdateForm, UploadMediaForm, UserAuthenticationForm, UserRegistrationForm, UserUpdateForm, UserPasswordChangeForm
 from .models import Notification, ProfileComment, ProfileMedia, User, UserAward, UserProfile
 from .helpers import users
@@ -74,7 +74,7 @@ def create_comment(request: HttpRequest, slug: str):
 
         new_comment.save()
 
-        notify_about_comment(new_comment)
+        notifications.send_comment_notification(new_comment)
 
         awards.grant_user_comment_creation_awards(user=request.user)
 
@@ -112,9 +112,12 @@ def user_subscribe(request: HttpRequest, slug: str):
     if profile not in request.user.profile.subscriptions.all():
         profile.subscribers.add(request.user.profile)
         response['action'] = 'add'
+        notifications.send_subscribe_notification(profile, request.user.profile)
+        
         awards.grant_user_followers_awards(user=profile.user)
     else:
         profile.subscribers.remove(request.user.profile)
+        notifications.remove_subscribe_notification(profile, request.user.profile)
         response['action'] = 'remove'
 
     return JsonResponse(response)

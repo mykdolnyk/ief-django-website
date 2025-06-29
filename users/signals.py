@@ -13,6 +13,10 @@ def on_registration_application_change(sender, instance: RegistrationApplication
     If the application was not saved before, it does nothing.
     If the application was previously saved, and the new status is
     "Approved", then it calls the `approve_application` function."""
+    if kwargs['raw'] == True:
+        # Do not call on the fixture load
+        return None
+    
     if instance.was_ever_reviewed:
         return None
 
@@ -31,5 +35,3 @@ def on_registration_application_change(sender, instance: RegistrationApplication
 
 
 post_save.connect(notifications.on_new_blog, sender=Blog)
-m2m_changed.connect(notifications.on_like, sender=Blog.likes.through)
-m2m_changed.connect(notifications.on_subscription, sender=UserProfile.subscriptions.through)
