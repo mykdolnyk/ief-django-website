@@ -56,7 +56,7 @@ def update_pfp(profile: UserProfile):
 
 def get_userprofile_or_404(slug):
     try:
-        profile = UserProfile.objects.get(slug=slug.lower())
+        profile = UserProfile.objects.get(slug=slug.lower(), user__is_active=True)
     except UserProfile.DoesNotExist:
         raise Http404()
     
