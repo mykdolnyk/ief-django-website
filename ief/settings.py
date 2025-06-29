@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'blogs',
     'users',
     'django_ckeditor_5',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [

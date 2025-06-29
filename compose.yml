@@ -1,16 +1,37 @@
 services:
   web:
     build: .
-    ports:
-      - "8000:8000"
     command: sh -c "python manage.py runserver 0.0.0.0:8000"
-  celery:
-    build: .
-    command: celery -A ief worker -l info
+    volumes:
+      - .:/app
     depends_on:
       - redis
     environment:
       - DJANGO_SETTINGS_MODULE=ief.settings
+    ports:
+      - "8000:8000"
+
+  celery-worker:
+    build: .
+    command: celery -A ief worker -l info
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+    environment:
+      - DJANGO_SETTINGS_MODULE=ief.settings
+
+  celery-beat:
+    build: .
+    command: celery -A ief beat -S django -l info
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - web
+    environment:
+      - DJANGO_SETTINGS_MODULE=ief.settings
+
   redis:
     image: redis
     

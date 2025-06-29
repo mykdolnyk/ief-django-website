@@ -60,9 +60,7 @@ def reject_application(user: User):
     user.application.was_ever_reviewed = True
 
 
-def update_pfp(profile: UserProfile, skip_rate_limit=False):
-    # TODO: periodical PFP update
-    
+def update_pfp(profile: UserProfile, skip_rate_limit=False):    
     if not skip_rate_limit:
         # Check if the PFP was created and updated before...
         pfp_recently_updated = cache.has_key(f"pfp_recently_updated:{profile.user.username}")
