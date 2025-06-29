@@ -39,6 +39,11 @@ class Blog(models.Model):
         # replace _ with -. It is needed to prevent creating
         # duplicated slugs. For example: first create "test_1"
         # title, and then create 2 "test" titles.
+        if not self._state.adding: 
+            # Check if the record is being created or updated.
+            # It is needed to prevent the slug from changin on update
+            return super().save(*args, **kwargs)
+        
         new_slug = slugify(self.title).replace('_', '-')
         
         # Check the number of duplicates
@@ -50,19 +55,6 @@ class Blog(models.Model):
         return super().save(*args, **kwargs)
     
     
-class Tag(models.Model):
-    title = models.CharField(_("Tag"), max_length=64)
-    is_visible = models.BooleanField(default=False)    
-
-    def __str__(self):
-        return self.title
-    
-
-class BlogTags(models.Model):
-    blog = models.ForeignKey(Blog, verbose_name=_("Blog"), on_delete=models.CASCADE)
-    tag = models.ForeignKey(Tag, verbose_name=_("Tag"), on_delete=models.CASCADE)
-    
-
 class BlogComment(AbstractComment):
     blog = models.ForeignKey(Blog, verbose_name='Blog', on_delete=models.SET_NULL, null=True)
     
