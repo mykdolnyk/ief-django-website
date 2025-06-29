@@ -422,17 +422,18 @@ def login_page(request: HttpRequest):
         # Validate the login information
         if form.is_valid(): 
             user: User = form.get_user()
-
-            try:
-                # Prevent users without a profile from logging in using
-                # the default login page (like superusers created via console line)
-                user.profile
-            except ObjectDoesNotExist:
-                form.add_error('', form.get_invalid_login_error())
-            else:
-                login(request, user)
-                next_page = request.GET.get('next')
-                return redirect(next_page or reverse('index_page'))
+            login(request, user)
+            next_page = request.GET.get('next')
+            
+            # Superusers without a profile are redirected to admin
+            if user.is_superuser:
+                try:
+                    user.profile
+                except ObjectDoesNotExist:
+                    next_page = reverse('admin:index')
+                
+            return redirect(next_page or reverse('index_page'))
+        
         else:
             # Get and increase the number of failed login attempts. Set it to 1 if it is the first one
             attempt_count = restricter.increase_attempt_count()
