@@ -11,16 +11,16 @@ def username_to_mc_uuid(username) -> str | None:
     or `None` if such username was not found"""
     username_check_url = 'https://api.mojang.com/users/profiles/minecraft/'
     
-    request_url = f"{username_check_url}{username}"
+    request_url = f"{username_check_url}{username}" # TODO: Implement caching at this stage
     response = requests.get(url=request_url).json() # request the uuid 
     
     return response.get('id') # return the id or None if there is no such
 
 
 def get_minecraft_skin_url(uuid) -> str | None:
-    skin_get_url = 'https://sessionserver.mojang.com/session/minecraft/profile/'
+    profile_info_get_url = 'https://sessionserver.mojang.com/session/minecraft/profile/'
     
-    request_url = f"{skin_get_url}{uuid}"
+    request_url = f"{profile_info_get_url}{uuid}" # TODO: Implement caching at this stage
     response = requests.get(url=request_url) # request info about the account
     
     if response.status_code == 400:

@@ -40,7 +40,7 @@ class UserProfile(models.Model):
             return super().save(*args, **kwargs)
             
         self.slug = str(self.user.username).lower()
-        self.mcuuid = username_to_mc_uuid(self.user.username)  # ? Implement caching as this stage
+        self.mcuuid = username_to_mc_uuid(self.user.username)
         return super().save(*args, **kwargs)
 
 

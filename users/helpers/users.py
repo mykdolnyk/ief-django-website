@@ -1,10 +1,13 @@
+import logging
 from django.contrib.auth.models import User
 from django.http import Http404
 from helpers.email import send_application_approval_email, send_application_rejection_email
-from users.models import AwardType, Notification, RegistrationApplication, UserProfile
+from users.models import RegistrationApplication, UserProfile
 from users.helpers import mcuser
 from django.core.files.base import ContentFile
 from .awards import grant_award
+
+logger = logging.getLogger(__name__ + '.approve_application')
 
 def register_user(form_data) -> User:
     """A function that takes form as an argument and registers the user. 
@@ -44,7 +47,11 @@ def approve_application(user: User):
     user.save()
     
     send_application_approval_email(user=user)
-    print('User approved!') # TODO: log that somewhere
+    
+    info_to_log = user.__dict__.copy()
+    info_to_log.pop('password')
+    
+    logger.info(f'The following user was approved:\n{info_to_log}')
 
 
 def reject_application(user: User):
@@ -53,6 +60,7 @@ def reject_application(user: User):
 
 
 def update_pfp(profile: UserProfile):
+    # TODO: periodical PFP update (caching)
     pfp = mcuser.create_pfp(profile.mcuuid)
     pfp = ContentFile(pfp)
 

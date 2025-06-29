@@ -9,9 +9,6 @@
     <form class="grid-form logout-form" method="post">
         {% csrf_token %}
         <p>You won't be able to access the website until you are logged in again.</p>
-        {% comment %} <a class='button' href="#">Yes, Log Out</a>
-        <a class='button' href="#">No, Take me Back!</a> {% endcomment %}
-        {% comment %} TODO: JS BUTTONS! {% endcomment %}
         <input type="submit" value="Yes, Log Out" class='button' name='yes'>
         <input type="submit" value="No, Take me Back!" class='button' name='no'>
     </form>

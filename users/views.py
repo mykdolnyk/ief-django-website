@@ -21,6 +21,10 @@ from .models import Notification, ProfileComment, ProfileMedia, User, UserAward,
 from .helpers import users
 from helpers import form_processing, email
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class UserListView(ListView):
     model = UserProfile
@@ -38,7 +42,6 @@ def user_page(request: HttpRequest, slug: str):
 
     context = {
         'profile': profile,
-        # TODO: periodical PFP update (caching)
         'media_list': ProfileMedia.objects.filter(profile=profile, is_visible=True)[:3],
         'comments': ProfileComment.objects.filter(profile=profile),
         'comment_form': ProfileCommentCreationForm(),
@@ -328,8 +331,8 @@ def refresh_pfp(request: HttpRequest, slug: str):
             users.update_pfp(profile=profile)
             messages.success(
                 request, 'Your profile picture has been refreshed.')
-        except Exception as exc:  # TODO: log that somewhere
-            print(exc)
+        except Exception as exc:
+            logger.error(exc, exc_info=True)
             messages.error(
                 request, 'An error occured when trying to refresh your profile picture. Please try again later.')
     return redirect(reverse('user_edit', args=[slug]))
@@ -367,8 +370,7 @@ def register_page(request: HttpRequest):
                     # user.application.status = 1 # In this case, the signal doesn't approve the user automatically
                     user.application.save()  # But calling the `save` method does
             except Exception as exc:
-                # TODO: Log the exception in to some file
-                print(exc)
+                logger.critical(exc, exc_info=True)
                 form.add_error(
                     field=None, error='Some unknown error occured. Please try again a bit later.')
 

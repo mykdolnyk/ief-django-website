@@ -9,16 +9,11 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
-import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-3vey7zk&k*&m5a0!s3^y4^ukv!g06)(0rfj0@3z3z^q_d32!k$'
@@ -60,7 +55,7 @@ ROOT_URLCONF = 'ief.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [str(BASE_DIR) + '/templates/',],
+        'DIRS': [BASE_DIR / 'templates/',],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -134,7 +129,7 @@ STATICFILES_DIRS = [
     # "/var/www/static/",
 ]
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = 'media/'
 
 # Default primary key field type
@@ -153,6 +148,61 @@ DEFAULT_FROM_EMAIL = f'Igni et Ferro <{EMAIL_HOST_USER}>'
 
 LOGIN_PAGE_NAME = 'login_page'
 LOGIN_URL = '/login/'
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    
+    'formatters': {
+        'standard': {
+            'format': '[%(levelname)s]: %(message)s'
+        },
+        'verbose': {
+            'format': '|%(asctime)s| [%(levelname)s in %(funcName)s by %(name)s logger]: %(message)s'
+        }
+    },
+    
+    'handlers': {
+        'console': {
+            'level': 'WARNING',
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard',
+        },
+        'error_file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'formatter': 'verbose',
+            'filename': BASE_DIR / 'logs/error_log.log'
+        },
+        'user_approved_file': {
+            'level': "INFO",
+            'class': 'logging.FileHandler',
+            'formatter': 'verbose',
+            'filename': BASE_DIR / 'logs/user_approved_log.log'
+        }
+    },
+    
+    'loggers': {
+        'users.helpers.users.approve_application': {
+            'handlers': ['user_approved_file'],
+            'level': "INFO",
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['console', 'error_file'],
+            'level': 'ERROR',
+            'propagate': False,
+    },
+    },
+    
+    'root': {
+        'handlers': ['console', 'error_file'],
+        'level': 'ERROR',
+    }
+        
+}
+
 
 ############## CKEDITOR SETTINGS ##############
 

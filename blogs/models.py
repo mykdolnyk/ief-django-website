@@ -55,13 +55,3 @@ class Blog(models.Model):
     
 class BlogComment(AbstractComment):
     blog = models.ForeignKey(Blog, verbose_name='Blog', on_delete=models.SET_NULL, null=True)
-    
-# ! Remove it later 
-# class BlogMedia(models.Model):
-    
-#     blog = models.ForeignKey(Blog, verbose_name=_("Blog"), on_delete=models.CASCADE)
-#     image = models.ImageField('Blog Image', upload_to="users/profile_media/")
-#     title = models.CharField('Blog Media Title', max_length=32)
-#     type = models.SmallIntegerField('Blog Type', default=0) # TODO: implement via models.TextChoices
-#     # 0: photo, 1: video, 2: url photo, 3: url video
-#     is_visible = models.BooleanField(default=True)

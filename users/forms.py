@@ -54,7 +54,6 @@ class UserRegistrationForm(forms.ModelForm):
                 "The username is already taken."
             )
 
-        # ? Implement caching as this stage
         mcuuid = mcuser.username_to_mc_uuid(data)
 
         if not mcuuid:
