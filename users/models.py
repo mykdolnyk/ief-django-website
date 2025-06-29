@@ -1,22 +1,22 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 
 class UserProfile(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     username = models.CharField('Minecraft Username', max_length=64)
     bio = models.CharField('Bio', max_length=512, default='')
     signing = models.CharField('Signing', max_length=64, default='')
     
-    pfp = models.ImageField('Profile picture', upload_to='/users/pfps/')
+    pfp = models.ImageField('Profile picture', upload_to='users/pfps/')
     
     def __str__(self):
         return f'<{self.username} Profile>'
 
 
 class ProfileComment(models.Model):
-    profile = models.ForeignKey(UserProfile, verbose_name=UserProfile, on_delete=models.CASCADE)
+    profile = models.ForeignKey(UserProfile, verbose_name=UserProfile, on_delete=models.SET_NULL, null=True)
     text = models.CharField(max_length=512)
     is_visible = models.BooleanField(default=False)
     
@@ -26,7 +26,7 @@ class ProfileComment(models.Model):
     
 class ProfileMedia(models.Model):
     
-    profile = models.ForeignKey(UserProfile, verbose_name=UserProfile, on_delete=models.CASCADE)
+    profile = models.ForeignKey(UserProfile, verbose_name='User Profile', on_delete=models.SET_NULL, null=True)
     image = models.ImageField('Profile Image', upload_to="users/profile_media/")
     title = models.CharField('Profile Media Title', max_length=32)
     type = models.SmallIntegerField('Media Type', default=0) # TODO: implement via models.TextChoices
@@ -41,12 +41,12 @@ class Award(models.Model):
 
 
 class UserAward(models.Model):
-    user = models.ForeignKey(User)
-    award = models.ForeignKey(Award)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    award = models.ForeignKey(Award, on_delete=models.CASCADE)
 
 
 class Notification(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     text = models.CharField(_("Text"), max_length=128)
     is_seen = models.BooleanField(_("Is seen"))
     is_deleted = models.BooleanField(_("Is deleted"))
@@ -60,8 +60,8 @@ class Notification(models.Model):
     
 
 class Friend(models.Model):
-    user = models.ForeignKey(User, verbose_name='The User')
-    friend = models.ForeignKey(User, verbose_name="The user's friend")
+    user = models.ForeignKey(User, verbose_name='The User', related_name='friends', on_delete=models.CASCADE)
+    friend = models.ForeignKey(User, verbose_name="The user's friend", on_delete=models.CASCADE)
     
     class Meta:
         verbose_name = _("Friends")
@@ -72,7 +72,7 @@ class Friend(models.Model):
 
 
 class RegistrationApplication(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     text = models.CharField(_("Text"), max_length=256)
     type = models.SmallIntegerField('Application status', default=0) # TODO: implement via models.TextChoices
     # 0: not reviewed, 1: approved, 2: denied

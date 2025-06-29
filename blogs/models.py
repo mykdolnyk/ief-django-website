@@ -1,5 +1,6 @@
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -15,7 +16,7 @@ class Blog(models.Model):
     title = models.CharField(_("Title"), max_length=64)
     text = models.CharField(_("Text"), max_length=2048)
     section = models.ForeignKey(Section, verbose_name=_("Section"), on_delete=models.CASCADE)
-    author = models.ForeignKey("users.User", verbose_name=_("Author"), on_delete=models.CASCADE)
+    author = models.ForeignKey(User, verbose_name=_("Author"), on_delete=models.CASCADE)
     likes = models.IntegerField(_("Like count"))
     
     
