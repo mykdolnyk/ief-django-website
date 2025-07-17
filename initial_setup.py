@@ -28,3 +28,10 @@ if celery_beat_load.returncode != 0:
     raise Exception(f"Dump loading command failed with exit code {celery_beat_load.returncode}. Error output:\n{celery_beat_load.stderr}")
 else:
     print(celery_beat_load.stdout)
+
+# Collect static files
+collect_static = subprocess.run(["python", "manage.py", "collectstatic"], capture_output=True, text=True)
+if collect_static.returncode != 0:
+    raise Exception(f"Static collection failed with exit code {collect_static.returncode}. Error output:\n{collect_static.stderr}")
+else:
+    print(collect_static.stdout)
