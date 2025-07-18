@@ -17,6 +17,11 @@ DEBUG = env('DEBUG', 'False').lower() in ('true', 'yes', '1')
 
 ALLOWED_HOSTS = env('ALLOWED_HOSTS').split(',')
 
+# Automatically populate it with allowed hosts
+CSRF_TRUSTED_ORIGINS = [
+    f"https://{host}" for host in ALLOWED_HOSTS if host
+]
+
 # Main Site URL for email templates, etc.
 SITE_URL = f'https://{ALLOWED_HOSTS[0]}/'
 
