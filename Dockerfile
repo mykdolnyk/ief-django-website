@@ -7,6 +7,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-COPY entrypoint.sh ./
-RUN chmod +x entrypoint.sh
-ENTRYPOINT ["/app/entrypoint.sh"]
+RUN chmod +x scripts/entrypoint.sh scripts/wait_until_migrations_entrypoint.sh
+ENTRYPOINT ["bash", "scripts/entrypoint.sh"]

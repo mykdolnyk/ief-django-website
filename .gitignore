@@ -4,6 +4,7 @@ __pycache__
 .venv
 db.sqlite3
 
+staticfiles
 media/*
 !media/awards
 
