@@ -380,12 +380,13 @@ def register_page(request: HttpRequest):
             # Save the User, the Application and Profile instances
             try:
                 user: User = authentication.register_user(form)
-                tasks.send_registration_confirmation_email.delay(user.pk)
-
                 if settings.APPLICATIONS_APPROVE_AUTOMATICALLY:
                     user.application.status = 1 # In this case, the signal doesn't approve the user automatically
                     user.application.save()  # But calling the `save` method does
-                    
+                else:
+                    # Send a submission email if the application is not auto-approved
+                    tasks.send_registration_confirmation_email.delay(user.pk)
+
                 # Increase the number of sent applications
                 restricter.increase_attempt_count()
                 # Restrict if needed
