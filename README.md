@@ -1,31 +1,46 @@
-# Igni et Ferro - a Multi-container Django Website 
-A demonstrational Django-Docker back-end website designed as a website for a Minecraft server.
+# Igni et Ferro - a Multi-Container Django Web Application 
+
+A demonstrational Django-Nginx-Docker back-end website designed as a website for a Minecraft server.
+
 ### TL;DR
-- 🌐 Social-media-style website for a closed videogame community
-- 🫙 Django back-end, multi-container setup (Docker)
-- ⚙️ Redis, Celery, PostgreSQL
-- 🔐 Email-based approval system and custom security measures
-- 📸 Profile pages with auto-generated profile pictures
-- 💬 Posts, likes, comments, website achievements
+
+- Social-media-style website for a closed videogame community
+- Django back-end, multi-container setup (Docker)
+- Nginx, Redis, Celery, PostgreSQL
+- Email-based approval system and custom security measures
+- Login-protected media files serving
+- Profile pages with auto-generated profile pictures
+- Posts, likes, comments, website achievements
+- Optional SSL setup
 ### Sections:
+
 - [About this project](#about-this-project)
 - [Features](#features)
 - [Running the project](#running-the-project)
 - [Credits](#credits)
+
 ## About this project
+
 This website was built to demonstrate and enhance my development skills in building websites. It was designed as a website, functioning as a social media platform, for a private community of a small Minecraft server. Everyone here can share their stories and media related to the server and interact with each other by commenting and liking each other's posts and profiles.
 
-It showcases how different back-end technologies can be used to build a more complex project. This project used **Django** web framework; **Celery** for queueing tasks and **Celery Beat** for staging periodic ones; **Redis** as a broker for Celery and as a cache back-end at the same time; **PostgreSQL** as the database system. All of these components can be launched in **Docker** containers to boot up the website and run it instantly, or can be easily switched to other non-containerized services (e.g. AWS services like RDS, ElastiCache, etc.) via .env file's variables.
+It showcases how different back-end technologies can be used to build a more complex project. This project used **Django** web framework to build the website; **Nginx** server and reverse proxy to serve files and direct users to the website; **Celery** for queueing tasks and **Celery Beat** for staging periodic ones; **Redis** as a broker for Celery and as a cache back-end at the same time; **PostgreSQL** as the database system. All of these components can be launched in **Docker** containers to boot up the website and run it instantly, or can be easily switched to other non-containerized services (e.g. AWS services like RDS, ElastiCache, etc.) via .env file's variables.
 
-While working on the project, I got a deeper understanding of website designing process, including the peculiarities and necessity of data caching, importance and ways to implement security measures, and the overall structure of multi-container applications and their basic deployment.
+Working on the project gave me a deeper understanding of website designing process, including the peculiarities and necessity of data caching, importance and ways to implement security measures, and the overall structure of multi-container applications and their basic deployment.
+
 ### How should the website be used?
+
 #### Signing up
-The website is closed from the public view and can be accessed by registered and approved users only. Registration process is implemented via an application review system: a person should fill in the registration form which includes the application so that the website admins can review it and either approve or decline it through Django admin. The person will receive an email notification based on the outcome of this process. **The website validates whether the username chosen for the account actually exists, so it should be an existing Minecraft account's username** (for testing purposes, during the registration you may use such usernames as Steve, Alex, Jason, Henry).
+
+The website is closed from the public view and can be accessed by registered and approved users only. Registration process is implemented via an application review system: a person should fill in the registration form which includes the application so that the website admins can review it and either approve or decline it through Django admin. The person will receive an email notification based on the outcome of this process. 
+
+>ℹ️ Note: **The website validates whether the username chosen for the account actually exists, so it should be an existing Minecraft account's username** (for testing purposes, during the registration you may use such usernames as Steve, Alex, Jason, Henry).
 
 The password reset system is also implemented.
 
 A system that limits login, registration, password reset attempts is implemented to prevent any brute-force attacks or abuse of the website's resources.
+
 #### Website functionality
+
 You can make posts in a set of admin-defined categories. The website uses [CKEditor5](https://ckeditor.com/) rich text editor which supports embedding different types of media into the posts you create, formatting the text, creating tables and so on.
 
 You can comment and like posts made by users of the website, and you will receive notifications when other interact with your posts.
@@ -37,7 +52,9 @@ The profile picture (PFP) is generated automatically based on the username the u
 A system of website achievements tracks notable actions made by the users and rewards them with achievements (like creating X posts, getting X likes, making X comments, etc.)
 
 You can follow other users to keep track of their new posts and receive updates about their activity in your Timeline, which shows both the posts and media uploaded by the users you follow in the chronological order.
+
 ## Features
+
 This project showcases the usage of:
 - Redis
 	- [users/helpers/mcuser.py](users/helpers/mcuser.py)
@@ -73,14 +90,17 @@ And has other functionality worth mentioning:
 - Security measures
 	- [URL Enumeration Protection](blogs/views.py#L182-L217)
 	- [Login Brute-force Attack Protection](users/views.py#L419-L452)
+
 ## Running the project
+
 You should first clone the project on your local machine to proceed with further configuration. You can do that this way:
 ```shell
 git clone https://github.com/mykdolnyk/ief-django-website.git
 cd ief-django-website
 ```
 #### Configuring the .env file
-While the website project is preconfigured for the most related services (PostgreSQL DB, Celery, Redis), you should still connect your own email service to the website for it to fully show its potential and function flawlessly. 
+
+While the website project is preconfigured for the most related services (PostgreSQL DB, Celery, Redis), you still should connect your own email service to the website for it to fully show its potential and function flawlessly. 
 
 If you omit this step, the password reset functionality, as well as registration application approval/decline notifications will not work (it shouldn't cause any other issues though).
 
@@ -97,40 +117,40 @@ EMAIL_HOST_PASSWORD=
 ```
 
 Fill in these properties with the required information corresponding to your email service provider. You may also tweak other properties in your file, if you need to.
+
 #### Docker Compose
+
 Once the project is successfully cloned, first ensure that you have Docker Desktop installed and running. Then you would need to build the containers and configure the project. Enter the following commands one by one when first starting the app:
 1. Build the image:
 ```shell
-docker-compose build
+docker compose build
 ```
-2. Run the configuration script:
+2. Start the project itself
 ```shell
-docker-compose run --rm web python initial_setup.py
+docker compose up
 ```
-3. Start the project itself
-```shell
-docker-compose up
-```
-*When launching the app again, entering only the `docker-compose up` command is sufficient and recommended.*
+*When launching the app again, entering only the `docker compose up` command is sufficient and recommended.*
 
 The website should already be set up, loading all the required dependencies and fixtures automatically, and you should be able to access it by visiting this URL:
 ```
-http://localhost:8000/
+http://localhost/
 ```
-#### Creating the first user (superuser)
-As the website can't be accessed without an active account, you should create a first user to access it. To do that, run the following command:
-```shell
-docker-compose exec -ti web python manage.py createsuperuser
-```
-And then enter the username and password of the admin user. This user will not have a displayable profile on the website and should log into the admin panel only. Generally, you would create such user to approve or decline applications sent by other people.
-#### Approving other user registrations
+
+#### Approving user applications
+
+> Application approval functionality is disabled by default to make the testing process much easier. You can register an account and try logging into it instantly. If you wish to test out the application system, set the environment variable DJANGO_AUTO_APPROVAL to False.
+> Note: you will have to create a superuser first if you decide to do that. Superuser will not have a displayable profile on the website and should log into the admin panel only. Generally, you would create such users to approve or decline applications sent by other people.
+
 To approve/decline applications sent by new users, you would need to log into Django Admin interface, and go to the "**Applications**" tab in the "**Users**" section. Click on the application entry and change its status ("**Application status**") to "**Approved**", save the changes. It will send an email to the user and allow them to log into their account.
+
 #### Shutting down the project
+
 Once you are done with testing, you can turn off the website and remove the containers with this command:
 ```shell
-docker-compose down
+docker compose down
 ```
 ## Credits
+
 This project uses [CKEditor 5](https://ckeditor.com), licensed under the [GPL 2+](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html). 
 CKEditor 5 is an open-source rich text editor provided by CKSource. More details can be found at [ckeditor.com](https://ckeditor.com).
 
