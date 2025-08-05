@@ -12,6 +12,7 @@ urlpatterns = [
     path('', blogviews.index_page, name='index_page'),
     path('admin/login/', userviews.login_page, name='admin_login_page'),
     path('admin/', admin.site.urls),
+    path('mediafiles/<path:filename>', blogviews.mediafiles_proxy, name='mediafiles_proxy'),
     path('user/', include('users.urls')),
     path('blog/', include('blogs.urls')),
     path('media/', blogviews.AllMediaList.as_view(), name='all_media_list'),

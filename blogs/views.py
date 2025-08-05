@@ -179,6 +179,16 @@ class AllMediaList(ListView):
 class AboutPage(TemplateView):
     template_name = 'blogs/about.html'
     
+    
+def mediafiles_proxy(request: HttpRequest, filename: str):
+    if request.user.is_authenticated:
+        response = HttpResponse()
+        response['Content-Type'] = ''
+        response['X-Accel-Redirect'] = f'/protected_mediafiles/{filename}'
+        return response
+    else:
+        return HttpResponse('Unauthorized', status=401)
+    
 # ------------------ HTTP Error Handlers ------------------
 
 @login_required
