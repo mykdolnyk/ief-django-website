@@ -1,3 +1,5 @@
+# A Compose file with a the Certbot container
+
 services:
   web:
     build: .
@@ -52,7 +54,7 @@ services:
     expose:
       - "5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -65,12 +67,26 @@ services:
       - static_volume:/app/staticfiles
       - ./media:/app/media
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/www/certbot
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       - web
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/www/certbot
+    command: certonly --webroot -w /var/www/certbot -d %DOMAINNAME% --non-interactive --agree-tos -m %EMAIL%
+    # Replace %DOMAINNAME% and %EMAIL% with real domain and email address
+
 
 volumes:
   postgres_data:
   static_volume:
   media_volume:
+  certbot-etc:
+  certbot-var:

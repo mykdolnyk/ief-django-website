@@ -11,11 +11,16 @@ if USE_DOTENV:
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY = env('DJANGO_SECRET_KEY')
 
-DEBUG = env('DEBUG', 'False').lower() in ('true', 'yes', '1')
+DEBUG = env('DJANGO_DEBUG', 'False').lower() in ('true', 'yes', '1')
 
-ALLOWED_HOSTS = env('ALLOWED_HOSTS').split(',')
+ALLOWED_HOSTS = env('DJANGO_ALLOWED_HOSTS').split(',')
+
+# Automatically populate it with allowed hosts
+CSRF_TRUSTED_ORIGINS = [
+    f"https://{host}" for host in ALLOWED_HOSTS if host
+]
 
 # Main Site URL for email templates, etc.
 SITE_URL = f'https://{ALLOWED_HOSTS[0]}/'
@@ -121,6 +126,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
@@ -129,7 +135,7 @@ STATICFILES_DIRS = [
 ]
 
 MEDIA_ROOT = BASE_DIR / 'media'
-MEDIA_URL = 'media/'
+MEDIA_URL = 'mediafiles/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -163,7 +169,7 @@ APPLICATION_RESTRICTION_TIMEOUT = 60 * 60
 
 APPLICATION_ATTEMPTS_MAX = 5
 
-APPLICATIONS_APPROVE_AUTOMATICALLY = True # Might be used for testing
+APPLICATIONS_APPROVE_AUTOMATICALLY = env('DJANGO_AUTO_APPROVAL', 'False').lower() in ('true', 'yes', '1') # Might be used for testing
 
 # Logging
 LOGGING = {
