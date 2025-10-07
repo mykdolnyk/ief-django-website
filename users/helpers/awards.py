@@ -19,14 +19,14 @@ def grant_award(user:User, award_type_code:str, silent:bool=False):
             # If the user already has this award
             return False
 
-        user.awards.create(type=type_of_new_award)
+    user.awards.create(type=type_of_new_award)
+    
+    if not silent:
+        Notification.objects.create(
+        user=user,
+        text=f'You received a new award: <b>{type_of_new_award.name}</b>! Go check it out in your profile.')
         
-        if not silent:
-            Notification.objects.create(
-            user=user,
-            text=f'You received a new award: <b>{type_of_new_award.name}</b>! Go check it out in your profile.')
-            
-        return True
+    return True
 
 
 def grant_blog_creation_awards(user: User):
