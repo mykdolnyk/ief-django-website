@@ -74,7 +74,13 @@
                     {% for pic in media_list %}
                         <div class="background-inside media-card-mini">
                             <a href="{% url 'user_media_detail' profile.slug pic.pk %}"><img src="{{ pic.image.url }}" alt="{{pic.title}}"></a>
-                            <p>{{pic.title}}</p>
+                            <p>
+                                {% if pic.title %}
+                                    {{pic.title}}
+                                {% else %}
+                                    ...
+                                {% endif %}
+                            </p>
                         </div>
                     {% empty %}
                     {% endfor %}
