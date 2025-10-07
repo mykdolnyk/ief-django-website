@@ -56,7 +56,7 @@
                 <div class="elements-inline">
                     <h3>Bio</h3>
                     {% if request.user == profile.user %}
-                    <a href="{% url 'user_edit' profile.slug %}" class="button slim">Edit the Profile</a>
+                    <a href="{% url 'user_edit' profile.slug %}" class="button slim">Edit Profile</a>
                     {% endif %}                    
                 </div>
                 <p>
