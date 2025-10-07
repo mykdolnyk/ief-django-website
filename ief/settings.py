@@ -212,7 +212,7 @@ LOGGING = {
     },
     
     'loggers': {
-        'users.helpers.users.approve_application': {
+        'users.helpers.authentication.approve_application': {
             'handlers': ['user_approved_file'],
             'level': "INFO",
             'propagate': False,
