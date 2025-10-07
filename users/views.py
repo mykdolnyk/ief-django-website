@@ -42,7 +42,7 @@ def user_page(request: HttpRequest, slug: str):
 
     context = {
         'profile': profile,
-        'media_list': ProfileMedia.objects.filter(profile=profile)[:3],
+        'media_list': ProfileMedia.objects.filter(profile=profile).order_by('-created_at')[:3],
         'comments': ProfileComment.objects.filter(profile=profile),
         'comment_form': forms.ProfileCommentCreationForm(),
         # The current user is a subscriber of this user
@@ -143,7 +143,7 @@ class UserMediaList(ListView):
         # Get only the visible media of the user that is being checked
         profile = profiles.get_userprofile_or_404(
             self.kwargs["slug"]).user.profile
-        return ProfileMedia.objects.filter(profile=profile)
+        return ProfileMedia.objects.filter(profile=profile).order_by('-created_at')
 
     def get_context_data(self, **kwargs):
         new_context = super().get_context_data(**kwargs)
@@ -381,8 +381,8 @@ def register_page(request: HttpRequest):
             try:
                 user: User = authentication.register_user(form)
                 if settings.APPLICATIONS_APPROVE_AUTOMATICALLY:
-                    user.application.status = 1 # In this case, the signal doesn't approve the user automatically
-                    user.application.save()  # But calling the `save` method does
+                    user.application.status = 1
+                    user.application.save()  # Calling the `save` method approves the user automatically
                 else:
                     # Send a submission email if the application is not auto-approved
                     tasks.send_registration_confirmation_email.delay(user.pk)
