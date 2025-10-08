@@ -1,0 +1,2 @@
+{% include 'parts/users/username_display.html' with user=comment.owner%}
+made a comment on your "<a href="{% url 'user_media_detail' comment.media.profile.slug comment.media.pk %}">{% if comment.media.title %}{{comment.media.title}}{% else %}Untitled{% endif %}</a>" media: {{ comment.text|truncatewords:10|truncatechars:150 }}

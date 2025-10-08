@@ -1,0 +1,3 @@
+{% extends 'parts/comment_section.html' %}
+
+{% block form_action %}{% url 'user_media_detail' media.profile.slug media.pk %}{% endblock form_action %}

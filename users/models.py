@@ -74,6 +74,10 @@ class ProfileMedia(models.Model):
         return 'ProfileMedia'
     
 
+class MediaComment(AbstractComment):
+    media = models.ForeignKey(ProfileMedia, verbose_name='ProfileMedia', on_delete=models.SET_NULL, null=True)
+
+    
 class AwardType(models.Model):
     name = models.CharField(_("Award Type"), max_length=32)
     description = models.CharField(_("Description"), max_length=256)

@@ -5,7 +5,7 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm
 import common.forms
 
-from users.models import ProfileComment, ProfileMedia, UserProfile
+from users.models import MediaComment, ProfileComment, ProfileMedia, UserProfile
 from .helpers import mcuser
 from users import tasks
 
@@ -116,6 +116,11 @@ class UserAuthenticationForm(AuthenticationForm):
 class ProfileCommentCreationForm(common.forms.AbstractCommentCreationForm):
     class Meta(common.forms.AbstractCommentCreationForm.Meta):
         model = ProfileComment
+
+
+class MediaCommentCreationForm(common.forms.AbstractCommentCreationForm):
+    class Meta(common.forms.AbstractCommentCreationForm.Meta):
+        model = MediaComment
 
 
 class ProfileUpdateForm(forms.ModelForm):

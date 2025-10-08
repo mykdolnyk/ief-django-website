@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 
-from users.models import Notification, ProfileComment, UserProfile
+from users.models import Notification, ProfileComment, UserProfile, MediaComment
 from blogs.models import Blog, BlogComment
 
 
@@ -107,6 +107,15 @@ def send_comment_notification(comment: ProfileComment | BlogComment):
 
         template_path = 'users/notifications/snippets/user_commented_blog.html'
         receiving_user = comment.blog.author
+        
+    elif isinstance(comment, MediaComment):
+        
+        identifier_template = "user_commented_media;from_profile_pk:{from_profile_pk};to_profile_pk:{to_profile_pk};"
+        notification_identifier = identifier_template.format(from_profile_pk=comment.owner.profile.pk,
+                                                             to_profile_pk=comment.media.profile.pk)
+
+        template_path = 'users/notifications/snippets/user_commented_media.html'
+        receiving_user = comment.media.profile.user
 
     else:
         raise ValueError
