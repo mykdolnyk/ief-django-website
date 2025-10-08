@@ -8,6 +8,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_not_required
 from django.views.generic.list import ListView
 from django.views.generic import DetailView
+from django.views.generic import edit as edit_forms
 from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
@@ -16,7 +17,7 @@ from django.conf import settings
 from blogs.models import Blog
 from users.helpers import awards
 from users.helpers import notifications
-from .models import Notification, ProfileComment, ProfileMedia, User, UserAward, UserProfile
+from .models import MediaComment, Notification, ProfileComment, ProfileMedia, User, UserAward, UserProfile
 from .helpers import authentication
 from .helpers import profiles
 from common import form_processing
@@ -42,7 +43,7 @@ def user_page(request: HttpRequest, slug: str):
 
     context = {
         'profile': profile,
-        'media_list': ProfileMedia.objects.filter(profile=profile)[:3],
+        'media_list': ProfileMedia.objects.filter(profile=profile).order_by('-created_at')[:3],
         'comments': ProfileComment.objects.filter(profile=profile),
         'comment_form': forms.ProfileCommentCreationForm(),
         # The current user is a subscriber of this user
@@ -143,7 +144,7 @@ class UserMediaList(ListView):
         # Get only the visible media of the user that is being checked
         profile = profiles.get_userprofile_or_404(
             self.kwargs["slug"]).user.profile
-        return ProfileMedia.objects.filter(profile=profile)
+        return ProfileMedia.objects.filter(profile=profile).order_by('-created_at')
 
     def get_context_data(self, **kwargs):
         new_context = super().get_context_data(**kwargs)
@@ -152,11 +153,35 @@ class UserMediaList(ListView):
         return new_context
 
 
-class UserMediaDetail(DetailView):
+class UserMediaDetail(DetailView, edit_forms.FormView):
     model = ProfileMedia
     template_name = 'users/profile/user_profile_media_detail.html'
     context_object_name = 'media'
+    form_class = forms.MediaCommentCreationForm
+    
+    def get_success_url(self):
+        return self.request.path
+    
+    def get_context_data(self, **kwargs):   
+        new_context = super().get_context_data(**kwargs)
+        new_context['comments'] = MediaComment.objects.filter(media=self.get_object())
+        new_context['comment_form'] = new_context['form']
+        return new_context
+    
+    def form_valid(self, form):
+        new_comment: MediaComment = form.save(commit=False)
 
+        new_comment.media = self.get_object()
+        new_comment.is_visible = True 
+        new_comment.owner = self.request.user
+
+        new_comment.save()
+
+        notifications.send_comment_notification(new_comment)
+
+        awards.grant_user_comment_creation_awards(user=self.request.user)
+        return super().form_valid(form)
+    
 
 def user_media_upload(request: HttpRequest, slug: str):
     profile = profiles.get_userprofile_or_404(slug)
@@ -381,8 +406,8 @@ def register_page(request: HttpRequest):
             try:
                 user: User = authentication.register_user(form)
                 if settings.APPLICATIONS_APPROVE_AUTOMATICALLY:
-                    user.application.status = 1 # In this case, the signal doesn't approve the user automatically
-                    user.application.save()  # But calling the `save` method does
+                    user.application.status = 1
+                    user.application.save()  # Calling the `save` method approves the user automatically
                 else:
                     # Send a submission email if the application is not auto-approved
                     tasks.send_registration_confirmation_email.delay(user.pk)

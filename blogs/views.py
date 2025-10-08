@@ -174,6 +174,9 @@ class AllMediaList(ListView):
     model = ProfileMedia
     context_object_name = 'media_list'
     template_name = 'blogs/all_profile_media_list.html'
+    
+    def get_queryset(self) :
+        return ProfileMedia.objects.order_by('-created_at')
 
 
 class AboutPage(TemplateView):

@@ -1,13 +1,14 @@
 # Igni et Ferro - a Multi-Container Django Web Application 
 
-A demonstrational Django-Nginx-Docker back-end website designed as a website for a Minecraft server.
+A demonstrational Django-Nginx-Docker backend-focused website designed as a website for a Minecraft server.
 
 ### TL;DR
 
 - Social-media-style website for a closed videogame community
-- Django back-end, multi-container setup (Docker)
+- Django application, multi-container setup (Docker)
 - Nginx, Redis, Celery, PostgreSQL
-- Email-based approval system and custom security measures
+- Email-based approval system
+- Login and registration rate limiting
 - Login-protected media files serving
 - Profile pages with auto-generated profile pictures
 - Posts, likes, comments, website achievements
@@ -149,6 +150,19 @@ Once you are done with testing, you can turn off the website and remove the cont
 ```shell
 docker compose down
 ```
+
+### SSL Setup
+
+You can set up a free SSL certificate for the domain using Certbot. To do that, first you will need to make some manual changes in the existing files. In [compose_ssl.yml](https://github.com/mykdolnyk/ief-django-website/blob/main/compose_ssl.yml) and [default_ssl.conf](https://github.com/mykdolnyk/ief-django-website/blob/main/nginx/default_ssl.conf) files, change strings `%DOMAINNAME%` and `%EMAIL%` with actual domain name and email address. 
+
+Once that is done, you can run the project with:
+
+```bash
+docker compose -f compose_ssl.yml up
+```
+
+Keep in mind that you still need to configure the [default_ssl.conf](https://github.com/mykdolnyk/ief-django-website/blob/main/nginx/default_ssl.conf) file as usual to make it work with SSL.
+
 ## Credits
 
 This project uses [CKEditor 5](https://ckeditor.com), licensed under the [GPL 2+](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html). 
